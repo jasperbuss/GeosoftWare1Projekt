@@ -1,6 +1,6 @@
 /**
  * Geosoftware I, SoSe 2017, Aufgabe
- * @author 
+ * @author
  */
 
 'use strict';
@@ -358,6 +358,7 @@ function RouteToGeoJSON(route){
 			type: 'FeatureCollection',
 			features: [
 				{
+
 					type: 'Feature',
 					properties: {
 						id: 'waypoints',

@@ -8,7 +8,7 @@ router.post('/save/geometry/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
-  
+
     // Submit to the DB
     jsoncollection.insert({
         "name" : req.body.name,
@@ -25,15 +25,15 @@ router.post('/save/geometry/', function(req, res, next) {
 
 /* GET stored Geometry */
 router.get('/load/geometry/:name/', function(req, res, next) {
-  
+
   // Set Collection
   var collection = db.get('jsoncollection');
-  
+
   // Retrieve Entries with matching Name from Database. Compelete Entry is returned on match.
   collection.find({name: { $eq: req.params.name }},{},function(e,geometry){
     // Check for connection/syntax errors
     if(e){
-      res.status(500).end("Failed to retrieve results from Database.");  
+      res.status(500).end("Failed to retrieve results from Database.");
     }else{
       // Check if there is an Entry - else fail
       if(geometry.length != 0){
@@ -69,15 +69,15 @@ router.post('/save/route/', function(req, res, next) {
 
 /* GET stored Route */
 router.get('/load/route/:name/', function(req, res, next) {
-  
+
   // Set Collection
   var collection = db.get('jsoncollection');
-  
+
     // Retrieve Entries with matching Name from Database. Compelete Entry is returned on match.
     collection.find({routename: { $eq: req.params.name }},{},function(e,route){
     // Check for connection/syntax errors
     if(e){
-      res.status(500).end("Failed to retrieve results from Database.");  
+      res.status(500).end("Failed to retrieve results from Database.");
     }else{
       // Check if there is an Entry - else fail
       if(route.length != 0){
@@ -90,4 +90,51 @@ router.get('/load/route/:name/', function(req, res, next) {
     };
   });
 });
+router.post('/save/name/', function(req, res, next) {
+
+    // Set collection
+    var jsObjects = db.get('jsObjects');
+
+    // Submit to the DB
+    jsObjects.insert({
+        "name" : req.body.name,
+        "Preis" : req.body.Preis,
+        "Kapazität": req.body.Kapazität
+    }, function (err, doc) {
+        if (err) {
+          res.status(500).end("Failed to write Object to Database");
+        }
+        else {
+          res.status(200).end("Successfully written Object to Database.");
+        }
+    });
+});
+
+/* GET stored Geometry */
+router.get('/load/name/:name/', function(req, res, next) {
+
+  // Set Collection
+  var object = db.get('jsoncollection');
+
+  // Retrieve Entries with matching Name from Database. Compelete Entry is returned on match.
+  collection.find({name: { $eq: req.params.name }},{},function(e,name){
+    // Check for connection/syntax errors
+    if(e){
+      res.status(500).end("Failed to retrieve results from Database.");
+    }else{
+      // Check if there is an Entry - else fail
+      if(geometry.length != 0){
+        // Entry is returned
+        res.send(name);
+      } else {
+        // No entry was found
+        res.status(404).end("No such Object in the Database.");
+      }
+    };
+  });
+});
+
+
+
+
 module.exports = router;
