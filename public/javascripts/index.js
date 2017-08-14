@@ -1,8 +1,8 @@
 /**
- * Geosoftware I, SoSe 2017, Aufgabe 
- * @author Jens Seifert (408076), Jan Speckamp (428367)
+ * Geosoftware I, SoSe 2017, Aufgabe
+ * @author 
  */
- 
+
 'use strict';
 
 // global variables for Leaflet stuff, very handy
@@ -10,7 +10,7 @@ var map, layercontrol, editableLayers, visualizationLayers, drawControl, routeCo
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
- */ 
+ */
 function initMap() {
   routeSwitch = true;
   map = L.map('map', {
@@ -21,21 +21,21 @@ function initMap() {
   L.control.zoom({
     position: 'bottomleft'
   }).addTo(map);
-  
-  // add layer control to map 
+
+  // add layer control to map
   layercontrol = L.control.layers().addTo(map).expand();
 
   // add standard OSM tiles as basemap
   layercontrol.addBaseLayer(L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
-  
+
   // add an alternative basemap, fetched via WMS
   layercontrol.addBaseLayer(L.tileLayer.wms('http://sg.geodatenzentrum.de/wms_webatlasde.light?', {
       layers:'webatlasde.light',
       attribution: '&copy; GeoBasis-DE / <a href="http://www.bkg.bund.de">BKG</a> 2017'
   }), 'BKG GeoBasis-DE (WMS)');
-  
+
   // Setup Routing Plugin
   routeControl = L.Routing.control({
     waypoints: [
@@ -47,7 +47,7 @@ function initMap() {
     geocoder: L.Control.Geocoder.nominatim()
   });
   routeControl.addTo(map);
-  
+
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
   map.on('click', function(e) {
     if (routeSwitch){
@@ -69,14 +69,14 @@ function initMap() {
       });
     }
   });
-  
+
   routeControl.on('routeselected', function(e) {
       currentRoute = {};
       currentRoute.waypoints = routeControl.getWaypoints();
       currentRoute.route = e.route;
-      
+
   })
-  
+
   // setup Leaflet.draw plugin
   // layer to draw on
   editableLayers = new L.FeatureGroup();
@@ -96,7 +96,7 @@ function initMap() {
 
   // add controls to map
   drawControl = new L.Control.Draw(options);
-  
+
   map.addControl(drawControl);
   // when drawing is done, save drawn objects to the drawing layer
   map.on(L.Draw.Event.CREATED, function (e) {
@@ -112,7 +112,7 @@ function initMap() {
       routeSwitch = true;
   });
 
-  
+
   // make icon with photo of GEO1 as the marker image
   var geo1icon = L.icon({iconUrl: 'https://www.uni-muenster.de/imperia/md/images/geowissenschaften/geo1.jpg', iconSize: [50, 41]});
   // compose popup with a bit of text and another photo
@@ -171,7 +171,7 @@ function exportDrawing() {
 function initUI() {
   var resize= $("#content");
   var containerWidth = $("body").width();
-    
+
   $(resize).resizable({
     handles: 'e',
     /*maxWidth: 450,
@@ -180,11 +180,11 @@ function initUI() {
     resize: function(event, ui){
       var currentWidth = ui.size.width;
 
-      // this accounts for padding in the panels + 
+      // this accounts for padding in the panels +
       // borders, you could calculate this using jQuery
-      var padding = 12; 
+      var padding = 12;
 
-      // this accounts for some lag in the ui.size value, if you take this away 
+      // this accounts for some lag in the ui.size value, if you take this away
       // you'll get some instable behaviour
       $(this).width(containerWidth - currentWidth - padding);
 
@@ -224,9 +224,9 @@ $(document).ready(function() {
   $('#loadFormGeo').submit(function(e) {
     // Prevent default html form handling
     e.preventDefault();
-    
+
     var that = this;
-    
+
     // submit via ajax
     $.ajax({
       // catch custom response code.
@@ -244,7 +244,7 @@ $(document).ready(function() {
       success: function(res) {
         console.log("success");
          // Add Geometry to Map
-         L.geoJSON(JSON.parse(res[0].geometry)).addTo(map);    
+         L.geoJSON(JSON.parse(res[0].geometry)).addTo(map);
          alert("Geometry '" + that.elements.loadname.value + "' successfully loaded.");
       }
     });
@@ -258,7 +258,7 @@ $(document).ready(function() {
       var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
       $(this).append(inputRoute);
       var that = this;
-      
+
       // submit via ajax
       $.ajax({
         data: $(that).serialize(),
@@ -280,7 +280,7 @@ $(document).ready(function() {
     // Prevent default html form handling
     e.preventDefault();
     var that = this;
-    
+
     // submit via ajax
     $.ajax({
       // catch custom response code.
@@ -297,19 +297,19 @@ $(document).ready(function() {
       },
       success: function(res) {
         var route = JSON.parse(res[0].route);
-        routeControl.setWaypoints(route.waypoints).addTo(map); 
+        routeControl.setWaypoints(route.waypoints).addTo(map);
         console.log("Route '" + that.elements.loadname.value + "' successfully loaded.");
       }
     });
     return false;
   });
-  
+
   // submit handler for forms used to load from Database
   $('#loadFormRoutesVisualization').submit(function(e) {
     // Prevent default html form handling
     e.preventDefault();
     var that = this;
-    
+
     // submit via ajax
     $.ajax({
       // catch custom response code.
@@ -333,9 +333,9 @@ $(document).ready(function() {
     });
     return false;
   });
-  
+
   if ((document.getElementById('loadname')).value != ""){
-    document.getElementById('loadRoutes').click(); 
+    document.getElementById('loadRoutes').click();
   }
 });
 
@@ -366,7 +366,7 @@ function RouteToGeoJSON(route){
 					geometry: {
 						type: 'MultiPoint',
 						coordinates: wpCoordinates
-					}  
+					}
 				},
 				{
 					type: 'Feature',
@@ -408,7 +408,7 @@ function clearVisualizationLayer() {
   visualizationLayers.clearLayers();
 }
 
-document.addEventListener("DOMContentLoaded", function(event) { 
+document.addEventListener("DOMContentLoaded", function(event) {
   initMap();
   initUI();
 });
