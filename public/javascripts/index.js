@@ -95,7 +95,7 @@ function initMap() {
   map.addLayer(visualizationLayers);
 
   // add controls to map
-  drawControl = new L.Control.Draw(options);
+/*  drawControl = new L.Control.Draw(options);
 
   map.addControl(drawControl);
   // when drawing is done, save drawn objects to the drawing layer
@@ -111,12 +111,12 @@ function initMap() {
   map.on(L.Draw.Event.DRAWSTOP, function (e) {
       routeSwitch = true;
   });
-
+*/
 
   // make icon with photo of GEO1 as the marker image
-  var geo1icon = L.icon({iconUrl: 'https://www.uni-muenster.de/imperia/md/images/geowissenschaften/geo1.jpg', iconSize: [50, 41]});
+  // var geo1icon = L.icon({iconUrl: 'https://www.uni-muenster.de/imperia/md/images/geowissenschaften/geo1.jpg', iconSize: [50, 41]});
   // compose popup with a bit of text and another photo
-  var geo1text = 'Das wundervolle GEO1-Gebäude an der Heisenbergstraße 2 in Münster <img src="http://www.eternit.de/referenzen/media/catalog/product/cache/2/image/890x520/9df78eab33525d08d6e5fb8d27136e95/g/e/geo1_institut_muenster_02.jpg" width="300">';
+  //  var geo1text = 'Das wundervolle GEO1-Gebäude an der Heisenbergstraße 2 in Münster <img src="http://www.eternit.de/referenzen/media/catalog/product/cache/2/image/890x520/9df78eab33525d08d6e5fb8d27136e95/g/e/geo1_institut_muenster_02.jpg" width="300">';
   // add marker to map and bind popup
   L.marker([51.969031, 7.595772], {title: 'GEO1', icon: geo1icon}).bindPopup(geo1text).addTo(map);
 }
@@ -149,7 +149,7 @@ function showExternalFile() {
 /**
  * provide the objects drawn using the Leaflet.draw plugin as a GeoJSON to download
  */
-function exportDrawing() {
+/*function exportDrawing() {
   // fake a link
   var anchor = document.createElement('a');
   // encode geojson as the link's contents
@@ -164,6 +164,7 @@ function exportDrawing() {
   // remove that element again as if nothing happened
   document.body.removeChild(anchor);
 }
+*/
 
 /**
  * add resizing capability (curtesy of several StackExchange users)
@@ -301,6 +302,7 @@ $(document).ready(function() {
         console.log("Route '" + that.elements.loadname.value + "' successfully loaded.");
       }
     });
+
     return false;
   });
 
@@ -334,6 +336,59 @@ $(document).ready(function() {
     return false;
   });
 
+
+  $('#saveFormObject').submit(function(e) {
+  e.preventDefault();
+  // Append hidden field with actual GeoJSON structure
+  var inputObj = $('<input type="hidden" name="objects" value=' + JSON.stringify(editableLayers.toGeoJSON())+ '>');
+  $(this).append(inputObj);
+  var that = this;
+  // submit via ajax
+  $.ajax({
+    data: $(that).serialize(),
+    type: $(that).attr('method'),
+    url:  $(that).attr('action'),
+    error: function(xhr, status, err) {
+      console.log("Error while saving Object to Database");
+      alert("Error while saving Geometry to Database");
+    },
+    success: function(res) {
+       console.log("Object with the name '" + that.elements.name.value + "' saved to Database.");
+    }
+  });
+  inputObj.remove();
+  return false;
+});
+// submit handler for forms used to load from Database
+$('#loadFormObj').submit(function(e) {
+  // Prevent default html form handling
+  e.preventDefault();
+
+  var that = this;
+
+  // submit via ajax
+  $.ajax({
+    // catch custom response code.
+    statusCode: {
+      404: function() {
+        alert("Object with the name '" + that.elements.loadname.value + "' is not present in the Database.");
+      }
+    },
+    data: '',
+    type: $(that).attr('method'),
+    // Dynamically create Request URL by appending requested name to /api prefix
+    url:  $(that).attr('action') + that.elements.loadname.value,
+    error: function(xhr, status, err) {
+    },
+    success: function(res) {
+      console.log("success");
+       // Add Object to Map
+       L.geoJSON(JSON.parse(res[0].objects)).addTo(map);
+       alert("Object '" + that.elements.loadname.value + "' successfully loaded.");
+    }
+  });
+  return false;
+});
   if ((document.getElementById('loadname')).value != ""){
     document.getElementById('loadRoutes').click();
   }
