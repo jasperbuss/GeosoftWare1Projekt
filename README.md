@@ -1,6 +1,6 @@
 # Abschlussaufgabe
 
-##~~ Aufgabenstellung SoSe 2017- La Vuelta a Espana ~~
+## ~~Aufgabenstellung SoSe 2017- La Vuelta a Espana~~
 
 WebGIS bauen - Eventplaner (z.B. Vuelta de Espana 2017)
 
