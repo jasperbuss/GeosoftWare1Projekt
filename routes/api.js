@@ -134,7 +134,4 @@ router.get('/load/name/:name/', function(req, res, next) {
   });
 });
 
-
-
-
 module.exports = router;
