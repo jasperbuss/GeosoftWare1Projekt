@@ -1,6 +1,6 @@
-Abschlussaufgabe
+# Abschlussaufgabe
 
-Aufgabenstellung SoSe 2017- La Vuelta a Espana
+## Aufgabenstellung SoSe 2017- La Vuelta a Espana
 
 WebGIS bauen - Eventplaner (z.B. Vuelta de Espana 2017)
 
@@ -65,4 +65,3 @@ Responsive WebDesign
 Karte soll auch auf dem Smartphone gut bedienbar sein
 
 Mindestens 5 Sinnvolle TestUnits mit Mocha.js# GeosoftWare1Projekt
-
