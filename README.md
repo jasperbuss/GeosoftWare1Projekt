@@ -4,7 +4,7 @@
 
 ### WebGIS bauen - Eventplaner (z.B. Vuelta de Espana 2017)
 
-Manuelle Digitalisierung von Objekten (z.B. Parkplätze, Zuschauerplätze)
+* Manuelle Digitalisierung von Objekten (z.B. Parkplätze, Zuschauerplätze) 
 
 notwendige Eigenschaften definieren (Name, Preis, Kapazität)
 
