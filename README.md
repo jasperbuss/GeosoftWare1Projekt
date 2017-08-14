@@ -60,7 +60,7 @@ Suche
 
 ### Webseite soll eine Startseite und ein Impressum haben, für die geforderten Funktionen dürfen mehr als eine Seite erstellt werden
 
-###Responsive WebDesign
+### Responsive WebDesign
 
 * Karte soll auch auf dem Smartphone gut bedienbar sein
 
