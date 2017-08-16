@@ -75,14 +75,6 @@ html
           input.form-control(type='text', name='loadname', id='loadname', value=loadRouteName, placeholder='Name der Route')
           input.btn.btn-default(type='submit', id='loadRoutes', value='Route aus Datenbank laden')
         br
-        form.form-inline(id='saveFormGeo' action='/api/save/geometry/' method='POST')
-          input#name.form-control(type='text', name='name', placeholder='Name der Geometrie')
-          input.btn.btn-default(type='submit', value='Geometrie in Datenbank speichern')
-        br
-        form.form-inline(id='loadFormObj' action='/api/load/name/' method='GET')
-          input#name.form-control(type='text', name='loadname', placeholder='Name des Objects')
-          input.btn.btn-default(type='submit', value='Object aus Datenbank laden')
-        br
         form.form-inline(id='loadFormRoutesVisualization' action='/api/load/route/' method='GET')
           input#name.form-control(type='text', name='loadname', placeholder='Name der Route')
           input.btn.btn-default(type='submit', value='Visualisiere Route')
