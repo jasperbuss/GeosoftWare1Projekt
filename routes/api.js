@@ -4,7 +4,7 @@ var monk = require('monk');
 var db = monk('localhost:27017/aufgabe7');
 
 /* POST Geojson to be saved to database. */
-router.post('/save/geometry/', function(req, res, next) {
+/*router.post('/save/geometry/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
@@ -24,7 +24,7 @@ router.post('/save/geometry/', function(req, res, next) {
 });
 
 /* GET stored Geometry */
-router.get('/load/geometry/:name/', function(req, res, next) {
+/*router.get('/load/geometry/:name/', function(req, res, next) {
 
   // Set Collection
   var collection = db.get('jsoncollection');
@@ -46,6 +46,7 @@ router.get('/load/geometry/:name/', function(req, res, next) {
     };
   });
 });
+*/
 
 /* POST Geojson to be saved to database. */
 router.post('/save/route/', function(req, res, next) {
@@ -98,8 +99,8 @@ router.post('/save/name/', function(req, res, next) {
     // Submit to the DB
     jsObjects.insert({
         "name" : req.body.name,
-        "Preis" : req.body.Preis,
-        "Kapazität": req.body.Kapazität
+        "Preis" : req.body.Preis.value,
+        "Kapazität": req.body.Kapazität.value
     }, function (err, doc) {
         if (err) {
           res.status(500).end("Failed to write Object to Database");
