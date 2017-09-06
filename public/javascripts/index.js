@@ -199,7 +199,7 @@ function initUI() {
 
 // Overwrite HTML Form handlers once document is created.
 $(document).ready(function() {
-    // overwrite submit handler for form used to save to Database
+    // overwrite submit handler for form used to save to Databasecurrent
   $('#saveFormRoutes').submit(function(e) {
     e.preventDefault();
     if (currentRoute){

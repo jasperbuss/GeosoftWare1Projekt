@@ -124,7 +124,7 @@ router.get('/load/name/:name/', function(req, res, next) {
       res.status(500).end("Failed to retrieve results from Database.");
     }else{
       // Check if there is an Entry - else fail
-      if(geometry.length != 0){
+      if(object.length != 0){
         // Entry is returned
         res.send(name);
       } else {
