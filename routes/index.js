@@ -25,6 +25,10 @@ router.get('/Parkplätze', function(req, res, next){
 res.render('Parkplätze',{});
 
 });
+/* GET Karte page. */
+router.get('/Parkplätze/:id/', function(req, res, next) {
+  res.render('Parkplätze', {loadRouteName: req.params.id});
+});
 
 
 module.exports = router;
