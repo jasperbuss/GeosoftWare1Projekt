@@ -21,8 +21,12 @@ router.get('/impressum', function(req, res, next) {
   res.render('impressum', {});
 });
 
-router.get('/Parkplätze/', function(req, res, next) {
-  res.render('Parkplätze', {});
+router.get('/Parkplaetze/', function(req, res, next) {
+  res.render('Parkplaetze', {});
+});
+
+router.get('/Parkplaetze/:id/', function(req, res, next) {
+  res.render('Parkplaetze', {loadRouteName: req.params.id});
 });
 
 

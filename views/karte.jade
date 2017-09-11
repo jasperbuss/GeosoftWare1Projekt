@@ -43,7 +43,7 @@ html
           li(role='presentation')
             a(href='impressum') Impressum
           li(role='presentation')
-            a(href='Parkplätze') Parkplätze
+            a(href='Parkplaetze') Parkplaetze
 
         br
       #content.col-md-8
@@ -72,7 +72,7 @@ html
         br
         form.form-inline(id='saveFormRoutes' action='/api/save/route/' method='POST')
           input#name.form-control(type='text', name='nameroute', placeholder='Name der Route')
-          input.btn.btn-default(type='submit', value='Route in Datenbank speichern')
+          input.btn.btn-default(type='submit', value='Route in zui speichern')
         br
         form.form-inline(id='loadFormRoutes' name='loadFormRoutes' action='/api/load/route/' method='GET')
           input.form-control(type='text', name='loadname', id='loadname', value=loadRouteName, placeholder='Name der Route')
