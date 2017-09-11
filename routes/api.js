@@ -4,9 +4,9 @@ var monk = require('monk');
 var db = monk('localhost:27017/aufgabe7');
 
 /* POST Geojson to be saved to database. */
-/*router.post('/save/geometry/', function(req, res, next) {
+router.post('/save/geometry/', function(req, res, next) {
 
-    // Set collection
+// Set collection
     var jsoncollection = db.get('jsoncollection');
 
     // Submit to the DB
@@ -24,7 +24,7 @@ var db = monk('localhost:27017/aufgabe7');
 });
 
 /* GET stored Geometry */
-/*router.get('/load/geometry/:name/', function(req, res, next) {
+router.get('/load/geometry/:name/', function(req, res, next) {
 
   // Set Collection
   var collection = db.get('jsoncollection');
