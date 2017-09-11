@@ -29,5 +29,13 @@ router.get('/Parkplaetze/:id/', function(req, res, next) {
   res.render('Parkplaetze', {loadRouteName: req.params.id});
 });
 
+router.get('/Etappen/', function(req, res, next) {
+  res.render('Etappen', {});
+});
+
+router.get('/Etappen/:id/', function(req, res, next) {
+  res.render('Etappen', {loadRouteName: req.params.id});
+});
+
 
 module.exports = router;
