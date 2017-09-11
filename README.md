@@ -46,7 +46,7 @@
 
 ### Zu jedem Veranstaltungsort soll automatisch der erste Absatz des dazugehörigen Wikipedia-Artikels eingebunden werden (wenn vorhanden).
 
-Suche
+### Suche
 
 * nach Etappen (nach Start, Ziel und Name)
 
