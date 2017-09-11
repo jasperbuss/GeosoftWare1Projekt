@@ -21,5 +21,9 @@ router.get('/impressum', function(req, res, next) {
   res.render('impressum', {});
 });
 
+router.get('/Parkplätze/', function(req, res, next) {
+  res.render('Parkplätze', {});
+});
+
 
 module.exports = router;
