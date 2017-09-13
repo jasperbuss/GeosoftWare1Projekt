@@ -1,9 +1,14 @@
 FROM node:6.10.2-alpine
 
 
-ADD . /app/
+ADD package.json /app/
 
 RUN cd /app && \
     npm install --production
 
-CMD ["node", "/app/app.js"]
+ADD . /app
+
+
+
+CMD ["node","app/app.js" ]
+CMD ["npm", "start"]

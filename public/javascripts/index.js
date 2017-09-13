@@ -42,7 +42,7 @@ function initMap() {
         null
     ],
     routeWhileDragging: true,
-    show:true,
+    show:false,
     position: 'topleft',
     geocoder: L.Control.Geocoder.nominatim()
   });
@@ -70,15 +70,23 @@ function initMap() {
     }
   });
 */
+/*
 
 
-  routeControl.on('routeselected', function(e) {
-      currentRoute = {};
-      currentRoute.waypoints = routeControl.getWaypoints();
-      currentRoute.route = e.route;
+map.on('click', function(e){
 
-  })
+  var testmarker = L.marker([44.0, -73.0], {icon: unselectedIcon});
 
+  for (i = 0; i <= points.length-1; i++) {
+    testmarker[i] = L.marker([points[i][0], points[i][1]], {icon: unselectedIcon, id: i});
+    testmarker[i].on('click', function(e) {
+        e.target.setIcon(selectedIcon);
+        document.getElementById('someDiv').innerHTML = points[e.target.options.id][2];
+});
+}
+});
+
+*/
   // setup Leaflet.draw plugin
   // layer to draw on
   editableLayers = new L.FeatureGroup();

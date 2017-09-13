@@ -100,7 +100,7 @@ router.post('/save/etappe/', function(req, res, next) {
     jsoncollection.insert({
         "Etappenname" : req.body.nameroute,
         "start" : req.body.start,
-        "ziel" : req.body.ziel
+        "ziel" : req.body.ziel,
         "Termine": {
           "Anfangsdatum" : req.body.Anfangsdatum,
           "Enddatum" : req.body.Enddatum
