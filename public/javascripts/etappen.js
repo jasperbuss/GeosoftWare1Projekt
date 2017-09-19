@@ -30,34 +30,27 @@ function initMap() {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
 
-  // add an alternative basemap, fetched via WMS
-  layercontrol.addBaseLayer(L.tileLayer.wms('http://sg.geodatenzentrum.de/wms_webatlasde.light?', {
-      layers:'webatlasde.light',
-      attribution: '&copy; GeoBasis-DE / <a href="http://www.bkg.bund.de">BKG</a> 2017'
-  }), 'BKG GeoBasis-DE (WMS)');
 
   // Setup Routing Plugin
-  routeControl = L.Routing.control({
+/*  routeControl = L.Routing.control({
     waypoints: [
         null
     ],
     routeWhileDragging: true,
-    show:false,
+    show:true,
     position: 'topleft',
     geocoder: L.Control.Geocoder.nominatim()
   });
   routeControl.addTo(map);
 
-
-
-
+*/
 
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
  map.on('click', function(e) {
     if (routeSwitch){
       var container = L.DomUtil.create('div'),
-          startBtn = createButton('Parkplatz hinzufügen', container),
-          destBtn = createButton('Zuschauerplätze', container);
+          startBtn = createButton('Etappenstart', container),
+          destBtn = createButton('Etappenende', container);
 
       L.popup()
           .setContent(container)
@@ -73,10 +66,6 @@ function initMap() {
       });
     }
   });
-
-
-
-
 
 
   // setup Leaflet.draw plugin

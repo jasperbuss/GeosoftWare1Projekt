@@ -31,13 +31,10 @@ function initMap() {
   }).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
 
   // add an alternative basemap, fetched via WMS
-  layercontrol.addBaseLayer(L.tileLayer.wms('http://sg.geodatenzentrum.de/wms_webatlasde.light?', {
-      layers:'webatlasde.light',
-      attribution: '&copy; GeoBasis-DE / <a href="http://www.bkg.bund.de">BKG</a> 2017'
-  }), 'BKG GeoBasis-DE (WMS)');
+
 
   // Setup Routing Plugin
-  routeControl = L.Routing.control({
+/*  routeControl = L.Routing.control({
     waypoints: [
         null
     ],
@@ -47,7 +44,7 @@ function initMap() {
     geocoder: L.Control.Geocoder.nominatim()
   });
   routeControl.addTo(map);
-
+*/
   map.on('click', function(e){
     var markerOnMap = e.latlng;
     var text = '<form class="meineForm" id="saveMarker" action="/api/save/marker/" method="POST">'+

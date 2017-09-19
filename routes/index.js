@@ -29,5 +29,14 @@ router.get('/Etappen/:id/', function(req, res, next) {
   res.render('Etappen', {loadRouteName: req.params.id});
 });
 
+router.get('/marker/', function(req, res, next) {
+  res.render('marker', {});
+});
+
+router.get('/marker/:id/', function(req, res, next) {
+  res.render('marker', {loadRouteName: req.params.id});
+});
+
+
 
 module.exports = router;
