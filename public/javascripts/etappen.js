@@ -45,6 +45,33 @@ function initMap() {
 
 */
 
+var router = L.Routing.osrm(),waypoints = [],line;
+var positionOnClick = e.latLng.;
+waypoints.push({latLng: L.latLng(positionOnClick)});
+waypoints.push({latLng: L.latLng(positionOnClick)});
+
+router.route (waypoints,function(err, routes) {
+        if (line) {
+            map.removeLayer(line);
+        }
+
+        if (err) {
+            alert(err);
+        } else {
+            line = L.Routing.line(routes[0]).addTo(map);
+        }
+    });
+
+
+function createRoute(){
+  var route = [];
+  var coors = [];
+  for(var i = 0; i<coors.length){
+
+  }
+
+  }
+
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
  map.on('click', function(e) {
     if (routeSwitch){
