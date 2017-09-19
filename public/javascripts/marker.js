@@ -57,7 +57,7 @@ function initMap() {
                           iconSize:     [38, 95],
                           iconAnchor:[22,94]});
 
-        L.marker([e.latlng], {title: '', icon: parkIcon}).bindPopup().addTo(map);                  
+        L.marker([e.latlng], {title: '', icon: parkIcon}).bindPopup().addTo(map);
 }
 
 

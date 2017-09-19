@@ -12,8 +12,8 @@ router.post('/save/name/', function(req, res, next) {
     // Submit to the DB
     jsoncollection.insert({
         "name" : req.body.name,
-        "Kapazität" : req.body.geometry,
-        "Preis" : rew.body.Preis
+        "Kapazität" : req.body.Kapazität,
+        "Preis" : req.body.Preis
     }, function (err, doc) {
         if (err) {
           res.status(500).end("Failed to write Parkplatz to Database");
