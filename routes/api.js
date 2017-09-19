@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var monk = require('monk');
-var db = monk('localhost:27017/aufgabe7');
+var db = monk('localhost:27017/Abschlussaufgabe');
 
 /* POST Geojson to be saved to database. */
-router.post('/save/name/', function(req, res, next) {
+router.post('/api/save/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');

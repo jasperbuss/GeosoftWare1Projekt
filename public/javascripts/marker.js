@@ -6,7 +6,7 @@
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, layercontrol, editableLayers, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var map, marker,  layercontrol, editableLayers, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
@@ -49,16 +49,39 @@ function initMap() {
   routeControl.addTo(map);
 
   map.on('click', function(e){
-      var marker = new L.marker(e.latlng).addTo(map);
+    var markerOnMap = e.latlng;
+    var text = '<form class="meineForm" id="saveMarker" action="/api/save/marker/" method="POST">'+
+            '<div class="form-group">'+
+            '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
+            '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
+            '</div>'+
+            '<div class="form-group">'+
+            '<label class="control-label col-sm-5"><strong>Art: </strong></label>'+
+            '<select class="form-control" id="art" name="art">'+
+            '<option value="Parkplatz">Parkplatz</option>'+
+            '<option value="Zuschauer">Zuschauerplatz</option>'+
+            '</select>'+
+            '</div>'+
+            '<div class="form-group">'+
+            '<label class="control-label col-sm-5"><strong>Kapazität: </strong></label>'+
+            '<input type="number" min="0" class="form-control" id="cap" name="cap">'+
+            '</div>'+
+            //...
+            '<div class="form-group">'+
+            '<label class="control-label col-sm-5"><strong>Description: </strong></label>'+
+            '<textarea class="form-control" rows="6" id="info" name="info">...</textarea>'+
+            '</div>'+
+            '<div class="form-group">'+
+            '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Marker speichern</button></div>'+              '</div>'+
+            '</form>';
+    var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
+                      iconSize: [30, 21]
+
+                  });
+    marker = new L.marker(markerOnMap, {icon: parkIcon}).addTo(map).bindPopup(text);
+
   });
 
-    function addMarker(e){
-        var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png', iconSize: [50, 41],
-                          iconSize:     [38, 95],
-                          iconAnchor:[22,94]});
-
-        L.marker([e.latlng], {title: '', icon: parkIcon}).bindPopup().addTo(map);
-}
 
 
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
