@@ -1,14 +1,15 @@
+
 var express = require('express');
 var router = express.Router();
 var monk = require('monk');
 var db = monk('localhost:27017/Abschlussaufgabe');
 
 /* POST Geojson to be saved to database. */
-router.post('/api/save/', function(req, res, next) {
+router.post('/api/save/marker', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
-
+    if(req.body.info == null){
     // Submit to the DB
     jsoncollection.insert({
         "name" : req.body.name,
@@ -22,9 +23,15 @@ router.post('/api/save/', function(req, res, next) {
           res.status(200).end("Successfully written Parkplatz to Database.");
         }
     });
+
+}
+
+
 });
 
-/* GET stored Geometry */
+
+
+/* GET stored Parklots */
 router.get('/load/name/:name/', function(req, res, next) {
 
   // Set Collection
@@ -49,7 +56,7 @@ router.get('/load/name/:name/', function(req, res, next) {
 });
 
 /* POST Geojson to be saved to database. */
-router.post('/save/route/', function(req, res, next) {
+router.post('/find/save/route/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
@@ -107,7 +114,7 @@ router.post('/save/etappe/', function(req, res, next) {
         }
     }, function (err, doc) {
         if (err) {
-          res.status(500).end("Failed to write Etappa to Database");
+          res.status(500).end("Failed to write Etappe to Database");
         }
         else {
           res.status(200).end("Successfully written Etappe to Database.");

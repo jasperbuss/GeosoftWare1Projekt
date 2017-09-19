@@ -53,7 +53,7 @@ function initMap() {
 
 
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
-/*  map.on('click', function(e) {
+ map.on('click', function(e) {
     if (routeSwitch){
       var container = L.DomUtil.create('div'),
           startBtn = createButton('Parkplatz hinzufügen', container),
@@ -73,7 +73,7 @@ function initMap() {
       });
     }
   });
-*/
+
 
 
 

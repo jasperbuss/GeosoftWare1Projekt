@@ -4,7 +4,7 @@ html
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1')
-        meta(name='author', content='Jan Speckamp (428367), Eric Thieme-Garmann (429603)')
+        meta(name='author', content='Jasper Buß(430423)')
         title Web-App - Geosoftware I, SoSe 2017, Aufgabe 7
         // Leaflet stuff
         link(rel='stylesheet', href='https://unpkg.com/leaflet@1.0.3/dist/leaflet.css')
@@ -29,7 +29,7 @@ html
         script(src='/javascripts/Control.Geocoder.js')
 
         // our app code
-        script(src='/javascripts/index.js')
+        script(src='/javascripts/etappen.js')
       body
         .container-fluid
           .col-md-12
@@ -38,14 +38,14 @@ html
             ul.nav.nav-tabs
               li(role='presentation')
                 a(href='/') Start
-              li.active(role='presentation')
+              li(role='presentation')
                 a(href='karte') Karte
               li(role='presentation')
                 a(href='impressum') Impressum
               li(role='presentation')
                 a(href='Etappen') Etappen
-              li(role='presentation')
-                a(href='marker') Marker
+              li.active(role='presentation')
+                a(href='marker') Marker  
 
             br
           #content.col-md-8
@@ -62,17 +62,17 @@ html
             br
             br
             form.form-inline(id='saveParklot' action='/api/save/name/' method='POST')
-              input#name.form-control(type='text', name='name', placeholder='Name des Parkplatzes')
-              input.btn.btn-default(type='submit', value='Parkplatz in Datenbank speichern')
+              input#name.form-control(type='text', name='name', placeholder='Name der Etappe')
+              input.btn.btn-default(type='submit', value='Etappe in Datenbank speichern')
             br
             form.form-inline(id='loadParklot' action='/api/load/name/' method='GET')
-              input#name.form-control(type='text', name='loadname', placeholder='Name des Parkplatzes')
+              input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')
               input.btn.btn-default(type='submit', value='Parkplatz aus Datenbank laden')
 
             br
             form.form-inline(id='loadFormRoutesVisualization' action='/api/load/route/' method='GET')
-              input#name.form-control(type='text', name='loadname', placeholder='Name der Route')
-              input.btn.btn-default(type='submit', value='Visualisiere Route')
+              input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')
+              input.btn.btn-default(type='submit', value='Visualisiere Etappe')
             br
             button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Routen
             br

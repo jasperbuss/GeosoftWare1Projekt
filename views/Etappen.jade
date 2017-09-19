@@ -4,7 +4,7 @@ html
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1')
-        meta(name='author', content='Jan Speckamp (428367), Eric Thieme-Garmann (429603)')
+        meta(name='author', content='Jasper Buß(430423)')
         title Web-App - Geosoftware I, SoSe 2017, Aufgabe 7
         // Leaflet stuff
         link(rel='stylesheet', href='https://unpkg.com/leaflet@1.0.3/dist/leaflet.css')
@@ -29,7 +29,7 @@ html
         script(src='/javascripts/Control.Geocoder.js')
 
         // our app code
-        script(src='/javascripts/index.js')
+        script(src='/javascripts/etappen.js')
       body
         .container-fluid
           .col-md-12
@@ -44,6 +44,8 @@ html
                 a(href='impressum') Impressum
               li.active(role='presentation')
                 a(href='Etappen') Etappen
+              li(role='presentation')
+                a(href='marker') Marker  
 
             br
           #content.col-md-8
