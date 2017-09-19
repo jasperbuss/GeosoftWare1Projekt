@@ -29,5 +29,5 @@ router.get('/Etappen/:id/', function(req, res, next) {
   res.render('Etappen', {loadRouteName: req.params.id});
 });
 
-/
+
 module.exports = router;
