@@ -1,11 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var monk = require('monk');
-var db = monk('localhost:27017/neu');
+var db = monk('localhost:27017/Abschlussaufgabe');
 
-/**Load marker
- *
- */
+//save marker
 router.post('/save/marker/', function(req, res, next) {
 
     // Set collection
@@ -53,6 +51,32 @@ router.get('/load/marker/:name/', function(req, res, next) {
         };
     });
 });
+/* POST Geojson to be saved to database. */
+router.post('/save/etappe/', function(req, res, next) {
+
+    // Set collection
+    var jsoncollection = db.get('jsoncollection');
+    //res.setHeader('Content-type', 'application/json');
+    // Submit to the DB
+    jsoncollection.insert({
+        "Etappenname" : req.body.name,
+        "Start":req.body.start,
+        "Startort":req.body.startort,
+        "Ende":req.body.end,
+        "Zielort":req.body.zielort,
+        "Website":req.body.website,
+        "StartBild":req.body.picstart,
+        "StartEnde":req.body.picende,
+        "route" : req.body.route
+    }, function (err, doc) {
+        if (err) {
+            res.status(500).end("Failed to write Route to Database");
+        }
+        else {
+            res.status(200).end("Successfully written Route to Database.");
+        }
+    });
+});
 
 
 /* GET stored Route */
@@ -82,32 +106,6 @@ router.get('/load/etappe/:name/', function(req, res, next) {
 
 
 
-/* POST Geojson to be saved to database. */
-router.post('/save/etappe/', function(req, res, next) {
-
-    // Set collection
-    var jsoncollection = db.get('jsoncollection');
-    //res.setHeader('Content-type', 'application/json');
-    // Submit to the DB
-    jsoncollection.insert({
-        "Etappenname" : req.body.name,
-        "Start":req.body.start,
-        "Startort":req.body.startort,
-        "Ende":req.body.end,
-        "Zielort":req.body.zielort,
-        "Website":req.body.website,
-        "StartBild":req.body.picstart,
-        "StartEnde":req.body.picende,
-        "route" : req.body.route
-    }, function (err, doc) {
-        if (err) {
-            res.status(500).end("Failed to write Route to Database");
-        }
-        else {
-            res.status(200).end("Successfully written Route to Database.");
-        }
-    });
-});
 
 
 module.exports = router;
