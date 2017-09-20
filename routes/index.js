@@ -24,17 +24,17 @@ router.get('/impressum', function(req, res, next) {
 router.get('/Etappen/', function(req, res, next) {
   res.render('Etappen', {});
 });
-
+// for permalink
 router.get('/Etappen/:id/', function(req, res, next) {
-  res.render('Etappen', {loadRouteName: req.params.id});
+  res.render('Etappen', {loadEtappe: req.params.id});
 });
 
 router.get('/marker/', function(req, res, next) {
   res.render('marker', {});
 });
-
+//permalink
 router.get('/marker/:id/', function(req, res, next) {
-  res.render('marker', {loadRouteName: req.params.id});
+  res.render('marker', {loadParklot: req.params.id});
 });
 
 

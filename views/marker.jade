@@ -47,6 +47,7 @@ html
               li.active(role='presentation')
                 a(href='marker') Marker
 
+
             br
           #content.col-md-8
             // Leaflet map div
@@ -67,7 +68,7 @@ html
             br
             form.form-inline(id='loadParklot' action='/api/load/name/' method='GET')
               input#name.form-control(type='text', name='loadname', placeholder='Name des Parkplatzes')
-              input.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze aus Datenbank laden')
+              input#btnid.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze aus Datenbank laden')
 
 
             button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Parkplätze

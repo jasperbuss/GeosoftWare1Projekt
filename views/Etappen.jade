@@ -47,6 +47,7 @@ html
               li(role='presentation')
                 a(href='marker') Marker
 
+
             br
           #content.col-md-8
             // Leaflet map div
@@ -61,13 +62,13 @@ html
             button.btn.btn-default(onclick='showLocation()') Meine Position anzeigen
             br
             br
-            form.form-inline(id='saveFormRoutes' action='/api/save/name/' method='POST')
+            form.form-inline(id='saveParkplatz' action='/api/save/name/' method='POST')
               input#name.form-control(type='text', name='name', placeholder='Name der Etappe')
-              input.btn.btn-default(type='submit', value='Etappe in Datenbank speichern')
+              input.btn-default(type='submit', value='Etappe in Datenbank speichern')
             br
             form.form-inline(id='loadFormRoutes' action='/api/load/route/' method='GET')
-              input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')
-              input.btn.btn-default(type='submit', value='Etappe aus Datenbank laden')
+              input#name.form-control(type='text', name='loadingname', placeholder='Name der Etappe')
+              input#butId.btn.btn-default(type='submit', value='Etappe aus Datenbank laden')
             br
             butt
             br

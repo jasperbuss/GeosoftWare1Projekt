@@ -107,7 +107,12 @@ function initMap() {
 
 
 
+routeControl.on('routeselected', function(e) {
+        currentRoute = {};
+        currentRoute.waypoints = routeControl.getWaypoints();
+        currentRoute.route = e.route;
 
+    });
   // setup Leaflet.draw plugin
   // layer to draw on
   editableLayers = new L.FeatureGroup();
@@ -214,9 +219,9 @@ $(document).ready(function() {
   // overwrite submit handler for form used to save to Database
 
     // overwrite submit handler for form used to save to Database
-  $('#saveParklot').submit(function(e) {
+  $('#saveMarker').submit(function(e) {
     e.preventDefault();
-    if (text){
+    if (currentRoute){
       // Append hidden field with actual GeoJSON structure
       var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");
       $(this).append(inputRoute);
@@ -298,7 +303,7 @@ $(document).ready(function() {
   });
 
   if ((document.getElementById('loadname')).value != ""){
-    document.getElementById('loadRoutes').click();
+    document.getElementById('btnid').click();
   }
 });
 

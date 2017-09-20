@@ -6,12 +6,13 @@
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, routes, marker,waypoints, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var map, routes, marker,waypoints,zwischenspeicher, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
  */
 function initMap(){
+
 var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 osmAttrib = '&copy; ' + osmLink + ' Contributors';
 var osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>',
@@ -20,12 +21,14 @@ routeSwitch = true;
 var osmMap = L.tileLayer(osmUrl, {attribution: osmAttrib});
 routeLayer = new L.featureGroup();
 map = L.map('map', {
-         layers: [osmMap] // only add one!
+         layers: [osmMap], // only add one!
+         zoomControl: false
        })
        .setView([43.836944, 4.36], 14);
+
 L.control.zoom({
-  position: 'bottomleft'
-}).addTo(map);
+         position: 'bottomleft'
+       }).addTo(map);
 
 var baselayers = {
 "OSM Mapnik": osmMap
@@ -57,19 +60,22 @@ L.control.layers(baselayers, overlays).addTo(map);
 
 
 
+// add controls to map
+
+
 // Setup Routing Plugin
-/*routeControl = L.Routing.control({
+routeControl = L.Routing.control({
   waypoints: [
       null
   ],
   routeWhileDragging: true,
-  show:false,
+  show:true,
   position: 'topleft',
   geocoder: L.Control.Geocoder.nominatim()
 });
 routeControl.addTo(map);
 
-*/
+
 
 
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
@@ -122,7 +128,245 @@ routeControl.addTo(map);
   // compose popup with a bit of text and another photo
 
 
+  routeControl.on('routeselected', function(e) {
+      currentRoute = {};
+      currentRoute.waypoints = routeControl.getWaypoints();
+      currentRoute.route = e.route;
+
+  });
+
+  // setup Leaflet.draw plugin
+  // layer to draw on
+  editableLayers = new L.FeatureGroup();
+ // map.addLayer(editableLayers);
+  // Leaflet.draw options
+  var options = {
+      position: 'bottomright',
+      edit: {
+          featureGroup: editableLayers, //REQUIRED!!
+          remove: false
+      }
+  };
+  // setup Leaflet.draw plugin
+  // layer to draw on
+  visualizationLayers = new L.FeatureGroup();
+  //map.addLayer(visualizationLayers);
+
+  // add controls to map
+  drawControl = new L.Control.Draw(options);
+
+  map.addControl(drawControl);
+
+  map.on('click', function(e) {
+       if (routeSwitch){
+           var container = L.DomUtil.create('div'),
+               startBtn = createButton('Start from this location', container),
+               destBtn = createButton('Go to this location', container);
+           console.log(e.latlng);
+           L.popup()
+               .setContent(container)
+               .setLatLng(e.latlng)
+               .openOn(map);
+           L.DomEvent.on(startBtn, 'click', function() {
+               routeControl.spliceWaypoints(0, 1, e.latlng);
+               zwischenspeicher = e.latlng;
+               map.closePopup();
+
+           });
+           L.DomEvent.on(destBtn, 'click', function() {
+
+               var popupStartcontent = '<form  id="saveEtappe" action="/api/save/etappe/" method="POST">'+
+                   '<div class="form-group">'+
+                   '<label class="control-label col-sm-5"><strong>Etappenname: </strong></label>'+
+                   '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
+                   '</div>'+
+                   '<div class="form-group">'+
+                   '<label id="starttermin" class="control-label col-sm-2"><strong>Starttermin: </strong></label>'+
+                   '<input type="date"  class="form-control" id="start" name="start">'+'<label id="startort" class="control-label col-sm-2"><strong>Startort: </strong></label>'+
+                   '<input type="text"  class="form-control" id="startort" name="startort">'+
+                   '</div>'+
+                   '<div class="form-group">'+
+                   '<label id="endtermin" class="control-label col-sm-5"><strong>Ende </strong></label>'+
+                   '<input type="date"  class="form-control" id="end" name="end">'+'<label id="zielort" class="control-label col-sm-2"><strong>Zielort: </strong></label>'+
+                   '<input type="text"  class="form-control" id="zielort" name="zielort">'+
+                   '</div>'+
+                   //...
+                   '<div class="form-group">'+
+                   '<label class="control-label col-sm-5"><strong>Website </strong></label>'+
+                   '<input type="text" placeholder="https://www......" id="website" name="website" class="form-control"/>'+
+                   '</div>'+
+                   '<div class="form-group">'+
+                   '<label class="control-label col-sm-7"><strong>Bild zu Start: </strong></label>'+
+                   '<input type="text" placeholder="https://www......" id="picstart" name="picstart" class="form-control"/>'+
+                   '</div>'+                    '<div class="form-group">'+
+                   '<label class="control-label col-sm-7"><strong>Bild zu Ende: </strong></label>'+
+                   '<input type="text" placeholder="https://www......" id="picende" name="picende" class="form-control"/>'+
+                   '</div>'+
+                   '<div class="form-group">'+
+                   '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Etappe speichern</button></div>'+              '</div>'+
+                   '</form>';
+
+               routeControl.spliceWaypoints(routeControl.getWaypoints().length - 1, 1, e.latlng);
+               var waypoints =  routeControl.getWaypoints();
+               map.closePopup();
+               var koordinatenStart = new L.LatLng(waypoints[0].latLng.lat,waypoints[0].latLng.lng);
+               var popupStart = L.marker(koordinatenStart).addTo(visualizationLayers);
+               popupStart.bindPopup(popupStartcontent).openPopup();
+
+               $('#saveEtappe').submit(function(e) {
+                   e.preventDefault();
+                   if (currentRoute){
+                       // Append hidden field with actual GeoJSON structure
+                       var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
+                       $(this).append(inputRoute);
+                       var that = this;
+
+                       // submit via ajax
+                       $.ajax({
+                           data: $(that).serialize(),
+                           type: $(that).attr('method'),
+                           url:  $(that).attr('action'),
+                           error: function(xhr, status, err) {
+                               console.log("Error while saving Route to Database");
+                           },
+                           success: function(res) {
+                               console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
+                           }
+                       });
+                       inputRoute.remove();
+                       map.closePopup();
+
+                       return false;
+                   }
+
+               });
+               $('#loadEtappe').submit(function(e) {
+                 // Prevent default html form handling
+                 e.preventDefault();
+                 var that = this;
+
+                 // submit via ajax
+                 $.ajax({
+                   // catch custom response code.
+                   statusCode: {
+                     404: function() {
+                     alert("Route with the name '" + that.elements.loadname.value + "' is not present in the Database.");
+                     }
+                   },
+                   data: '',
+                   type: $(that).attr('method'),
+                   // Dynamically create Request URL by appending requested name to /api prefix
+                   url:  $(that).attr('action') + that.elements.loadname.value,
+                   error: function(xhr, status, err) {
+                   },
+                   success: function(res) {
+                     var route = JSON.parse(res[0].route);
+                     routeControl.setWaypoints(route.waypoints).addTo(map);
+                     console.log("Route '" + that.elements.loadname.value + "' successfully loaded.");
+                   }
+                 });
+                 return false;
+               });
+           });
+
+       }
+
+
+   });
+
+
+  /** When an object ( e.g. marker ) is moved onto the map this event will trigger
+   *  Popup with our own content will show up and the user can fill in the information
+   *  that wants to be stored
+   */
+  map.on(L.Draw.Event.CREATED, function (e) {
+
+      var popupContent = '<form class="meineForm" id="Parkplatz" action="/api/save/marker/" method="POST">'+
+          '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
+          '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
+          '</div>'+
+          '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Art: </strong></label>'+
+          '<select class="form-control" id="art" name="art">'+
+          '<option value="Parkplatz">Parkplatz</option>'+
+          '<option value="Zuschauer">Zuschauerplatz</option>'+
+          '</select>'+
+          '</div>'+
+          '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Kapazität: </strong></label>'+
+          '<input type="number" min="0" class="form-control" id="cap" name="cap">'+
+          '</div>'+
+          //...
+          '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Description: </strong></label>'+
+          '<textarea class="form-control" rows="6" id="info" name="info">...</textarea>'+
+          '</div>'+
+          '<div class="form-group">'+
+          '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Marker speichern</button></div>'+              '</div>'+
+          '</form>';
+
+
+      var type = e.layerType,
+          layer = e.layer;
+      //add the marker to a layer
+      editableLayers.addLayer(layer);
+      L.marker(layer.getLatLng()).addTo(map);
+      var popup = L.popup({Width:1000
+          })
+          .setContent(popupContent)
+          .setLatLng(layer.getLatLng())
+          .openOn(map);
+
+          $('#saveMarker').submit(function(e) {
+                     e.preventDefault();
+
+                         // Append hidden field with actual GeoJSON structure
+                         var inputGeo = $('<input type="hidden" name="geometry" value=' + JSON.stringify(editableLayers.toGeoJSON())+ '>');
+                         $(this).append(inputGeo);
+                         var that = this;
+
+                         // submit via ajax
+                         $.ajax({
+                             data: $(that).serialize(),
+                             type: $(that).attr('method'),
+                             url:  $(that).attr('action'),
+                             error: function(xhr, status, err) {
+                                 console.log("Error while saving Route to Database");
+                             },
+                             success: function(res) {
+                                 console.log("Route with the name '" + that.elements.name.value+"' saved to Database.");
+                             }
+                         });
+                         inputGeo.remove();
+                         map.closePopup();
+
+                     return false;
+
+                 });
+
+
+             });
+      //Override the default handler for the saveMarker form previously defined
+
+
 }
+
+L.DrawToolbar.include({
+    getModeHandlers: function(map) {
+        return [
+            {
+                enabled: true,
+                handler: new L.Draw.Marker(map),
+                title: 'Objekt erstellen'
+            }
+        ];
+    }
+});
+
+
+
+
 
 /**
  * get user's location via geolocation web api and display it on the map
@@ -201,113 +445,6 @@ function initUI() {
 // Overwrite HTML Form handlers once document is created.
 $(document).ready(function() {
 
-  // overwrite submit handler for form used to save to Database
-  /*$('#saveParklot').submit(function(e) {
-    e.preventDefault();
-    // Append hidden field with actual GeoJSON structure
-    var inputGeo = $('<input type="hidden" name="geometry" value=' + JSON.stringify(editableLayers.toGeoJSON())+ '>');
-    $(this).append(inputGeo);
-    var that = this;
-    // submit via ajax
-    $.ajax({
-      data: $(that).serialize(),
-      type: $(that).attr('method'),
-      url:  $(that).attr('action'),
-      error: function(xhr, status, err) {
-        console.log("Error while saving Geometry to Database");
-        alert("Error while saving Geometry to Database");
-      },
-      success: function(res) {
-         console.log("Geometry with the name '" + that.elements.name.value + "' saved to Database.");
-      }
-    });
-    inputGeo.remove();
-    return false;
-  });
-  // submit handler for forms used to load from Database
-  $('#loadParklot').submit(function(e) {
-    // Prevent default html form handling
-    e.preventDefault();
-
-    var that = this;
-
-    // submit via ajax
-    $.ajax({
-      // catch custom response code.
-      statusCode: {
-        404: function() {
-          alert("Geometry with the name '" + that.elements.loadname.value + "' is not present in the Database.");
-        }
-      },
-      data: '',
-      type: $(that).attr('method'),
-      // Dynamically create Request URL by appending requested name to /api prefix
-      url:  $(that).attr('action') + that.elements.loadname.value,
-      error: function(xhr, status, err) {
-      },
-      success: function(res) {
-        console.log("success");
-         // Add Geometry to Map
-         L.geoJSON(JSON.parse(res[0].geometry)).addTo(map);
-         alert("Geometry '" + that.elements.loadname.value + "' successfully loaded.");
-      }
-    });
-    return false;
-  }); */
-    // overwrite submit handler for form used to save to Database
-  $('#saveFormRoutes').submit(function(e) {
-    e.preventDefault();
-    if (currentRoute){
-      // Append hidden field with actual GeoJSON structure
-      var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
-      $(this).append(inputRoute);
-      var that = this;
-
-      // submit via ajax
-      $.ajax({
-        data: $(that).serialize(),
-        type: $(that).attr('method'),
-        url:  $(that).attr('action'),
-        error: function(xhr, status, err) {
-          console.log("Error while saving Route to Database");
-        },
-        success: function(res) {
-          console.log("Route with the name '" + that.elements.name.value + "saved to Database.");
-        }
-      });
-      inputRoute.remove();
-      return false;
-    }
-  });
-  // submit handler for forms used to load from Database
-  $('#loadFormRoutes').submit(function(e) {
-    // Prevent default html form handling
-    e.preventDefault();
-    var that = this;
-
-    // submit via ajax
-    $.ajax({
-      // catch custom response code.
-      statusCode: {
-        404: function() {
-        alert("Route with the name '" + that.elements.loadname.value + "' is not present in the Database.");
-        }
-      },
-      data: '',
-      type: $(that).attr('method'),
-      // Dynamically create Request URL by appending requested name to /api prefix
-      url:  $(that).attr('action') + that.elements.loadname.value,
-      error: function(xhr, status, err) {
-      },
-      success: function(res) {
-        var route = JSON.parse(res[0].route);
-        routeControl.setWaypoints(route.waypoints).addTo(map);
-        console.log("Route '" + that.elements.loadname.value + "' successfully loaded.");
-      }
-    });
-    return false;
-  });
-
   // submit handler for forms used to load from Database
   $('#loadFormRoutesVisualization').submit(function(e) {
     // Prevent default html form handling
@@ -338,8 +475,8 @@ $(document).ready(function() {
     return false;
   });
 
-  if ((document.getElementById('loadname')).value != ""){
-    document.getElementById('loadRoutes').click();
+  if ((document.getElementById('loadingname')).value != ""){
+    document.getElementById('butId').click();
   }
 });
 
