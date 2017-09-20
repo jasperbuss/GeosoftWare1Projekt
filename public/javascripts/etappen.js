@@ -214,31 +214,28 @@ routeControl.addTo(map);
                popupStart.bindPopup(popupStartcontent).openPopup();
 
                $('#saveEtappe').submit(function(e) {
-                   e.preventDefault();
-                   if (currentRoute){
-                       // Append hidden field with actual GeoJSON structure
-                       var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
-                       $(this).append(inputRoute);
-                       var that = this;
+                 e.preventDefault();
+                 if (currentRoute){
+                   // Append hidden field with actual GeoJSON structure
+                   var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");
+                   $(this).append(inputRoute);
+                   var that = this;
 
-                       // submit via ajax
-                       $.ajax({
-                           data: $(that).serialize(),
-                           type: $(that).attr('method'),
-                           url:  $(that).attr('action'),
-                           error: function(xhr, status, err) {
-                               console.log("Error while saving Route to Database");
-                           },
-                           success: function(res) {
-                               console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
-                           }
-                       });
-                       inputRoute.remove();
-                       map.closePopup();
-
-                       return false;
-                   }
-
+                   // submit via ajax
+                   $.ajax({
+                     data: $(that).serialize(),
+                     type: $(that).attr('method'),
+                     url:  $(that).attr('action'),
+                     error: function(xhr, status, err) {
+                       console.log("Error while saving Route to Database");
+                     },
+                     success: function(res) {
+                       console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
+                     }
+                   });
+                   inputRoute.remove();
+                   return false;
+                 }
                });
                $('#loadEtappe').submit(function(e) {
                  // Prevent default html form handling

@@ -4,7 +4,7 @@ var monk = require('monk');
 var db = monk('localhost:27017/Abschlussaufgabe');
 
 //save marker
-router.post('/save/marker/', function(req, res, next) {
+router.post('/api/save/marker/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
@@ -52,7 +52,7 @@ router.get('/load/marker/:name/', function(req, res, next) {
     });
 });
 /* POST Geojson to be saved to database. */
-router.post('/save/etappe/', function(req, res, next) {
+router.post('/api/save/etappe/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');

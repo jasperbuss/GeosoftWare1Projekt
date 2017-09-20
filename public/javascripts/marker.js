@@ -75,8 +75,33 @@ function initMap() {
                       iconSize: [30, 21]
 
                   });
-    marker = new L.marker(markerOnMap, {icon: parkIcon}).addTo(map).bindPopup(text);
+    marker = new L.marker(markerOnMap, {icon: parkIcon}).addTo(map).bindPopup(text).openPopup();
+    // overwrite submit handler for form used to save to Database
 
+    $('#saveMarker').submit(function(e) {
+      e.preventDefault();
+      if (currentRoute){
+        // Append hidden field with actual GeoJSON structure
+        var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");
+        $(this).append(inputRoute);
+        var that = this;
+
+        // submit via ajax
+        $.ajax({
+          data: $(that).serialize(),
+          type: $(that).attr('method'),
+          url:  $(that).attr('action'),
+          error: function(xhr, status, err) {
+            console.log("Error while saving Route to Database");
+          },
+          success: function(res) {
+            console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
+          }
+        });
+        inputRoute.remove();
+        return false;
+      }
+    });
   });
 
 
@@ -216,33 +241,8 @@ function initUI() {
 // Overwrite HTML Form handlers once document is created.
 $(document).ready(function() {
 
-  // overwrite submit handler for form used to save to Database
 
-    // overwrite submit handler for form used to save to Database
-  $('#saveMarker').submit(function(e) {
-    e.preventDefault();
-    if (currentRoute){
-      // Append hidden field with actual GeoJSON structure
-      var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");
-      $(this).append(inputRoute);
-      var that = this;
 
-      // submit via ajax
-      $.ajax({
-        data: $(that).serialize(),
-        type: $(that).attr('method'),
-        url:  $(that).attr('action'),
-        error: function(xhr, status, err) {
-          console.log("Error while saving Route to Database");
-        },
-        success: function(res) {
-          console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
-        }
-      });
-      inputRoute.remove();
-      return false;
-    }
-  });
   // submit handler for forms used to load from Database
   $('#loadParklot').submit(function(e) {
     // Prevent default html form handling
