@@ -62,17 +62,13 @@ html
             br
             br
             form.form-inline(id='saveParklot' action='/api/save/name/' method='POST')
-              input#name.form-control(type='text', name='name', placeholder='Name der Etappe')
-              input.btn.btn-default(type='submit', value='Etappe in Datenbank speichern')
+              input#name.form-control(type='text', name='name', placeholder='Name des Parkplatzes')
+              input.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze in Datenbank speichern')
             br
             form.form-inline(id='loadParklot' action='/api/load/name/' method='GET')
-              input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')
-              input.btn.btn-default(type='submit', value='Parkplatz aus Datenbank laden')
+              input#name.form-control(type='text', name='loadname', placeholder='Name des Parkplatzes')
+              input.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze aus Datenbank laden')
 
-            br
-            form.form-inline(id='loadFormRoutesVisualization' action='/api/load/route/' method='GET')
-              input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')
-              input.btn.btn-default(type='submit', value='Visualisiere Etappe')
-            br
-            button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Routen
+
+            button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Parkplätze
             br

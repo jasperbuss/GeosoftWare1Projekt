@@ -6,74 +6,74 @@
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, marker,  layercontrol, editableLayers, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var map, routes, marker,waypoints, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
  */
-function initMap() {
-  routeSwitch = true;
-  map = L.map('map', {
-      center: [43.836944, 4.36], // Nimes
-      zoom: 14,
-      zoomControl: false
-  });
-  L.control.zoom({
-    position: 'bottomleft'
-  }).addTo(map);
+function initMap(){
+var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+osmAttrib = '&copy; ' + osmLink + ' Contributors';
+var osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>',
+thunLink = '<a href="http://thunderforest.com/">Thunderforest</a>';
+routeSwitch = true;
+var osmMap = L.tileLayer(osmUrl, {attribution: osmAttrib});
+routeLayer = new L.featureGroup();
+map = L.map('map', {
+         layers: [osmMap] // only add one!
+       })
+       .setView([43.836944, 4.36], 14);
+L.control.zoom({
+  position: 'bottomleft'
+}).addTo(map);
 
-  // add layer control to map
-  layercontrol = L.control.layers().addTo(map).expand();
+var baselayers = {
+"OSM Mapnik": osmMap
+};
+// add standard OSM tiles as basemap
+/*layercontrol.addBaseLayer(L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
+*/
 
-  // add standard OSM tiles as basemap
-  layercontrol.addBaseLayer(L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
+    var router = L.routing.osrmv1();
+    var wps = [];
+//Adds routes as layers
+map.on('click', function(e) {
+      wps.push(new L.Routing.Waypoint(e.latlng));
+      if (wps.length % 2 === 0) {
+        router.route(wps.slice(wps.length - 2, wps.length), function(err, routes) {
+          if (err) {
+            return console.error(err);
+          }
+          currentRoute = L.routing.line(routes[0]).addTo(routeLayer).addTo(map);
+        });
+      }
+    });
+  var overlays = {
+    "Etappen": routeLayer
+  }
+L.control.layers(baselayers, overlays).addTo(map);
 
 
-  // Setup Routing Plugin
-/*  routeControl = L.Routing.control({
-    waypoints: [
-        null
-    ],
-    routeWhileDragging: true,
-    show:true,
-    position: 'topleft',
-    geocoder: L.Control.Geocoder.nominatim()
-  });
-  routeControl.addTo(map);
+
+// Setup Routing Plugin
+/*routeControl = L.Routing.control({
+  waypoints: [
+      null
+  ],
+  routeWhileDragging: true,
+  show:false,
+  position: 'topleft',
+  geocoder: L.Control.Geocoder.nominatim()
+});
+routeControl.addTo(map);
 
 */
 
-var router = L.Routing.osrm(),waypoints = [],line;
-var positionOnClick = e.latLng.;
-waypoints.push({latLng: L.latLng(positionOnClick)});
-waypoints.push({latLng: L.latLng(positionOnClick)});
-
-router.route (waypoints,function(err, routes) {
-        if (line) {
-            map.removeLayer(line);
-        }
-
-        if (err) {
-            alert(err);
-        } else {
-            line = L.Routing.line(routes[0]).addTo(map);
-        }
-    });
-
-
-function createRoute(){
-  var route = [];
-  var coors = [];
-  for(var i = 0; i<coors.length){
-
-  }
-
-  }
 
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
- map.on('click', function(e) {
+  /* map.on('click', function(e) {
     if (routeSwitch){
       var container = L.DomUtil.create('div'),
           startBtn = createButton('Etappenstart', container),
@@ -93,6 +93,9 @@ function createRoute(){
       });
     }
   });
+
+*/
+
 
 
   // setup Leaflet.draw plugin
@@ -117,8 +120,7 @@ function createRoute(){
   // make icon with photo of GEO1 as the marker image
 //  var geo1icon = L.icon({iconUrl: 'https://www.uni-muenster.de/imperia/md/images/geowissenschaften/geo1.jpg', iconSize: [50, 41]});
   // compose popup with a bit of text and another photo
-  var geo1text = 'Das wundervolle GEO1-Gebäude an der Heisenbergstraße 2 in Münster <img src="http://www.eternit.de/referenzen/media/catalog/product/cache/2/image/890x520/9df78eab33525d08d6e5fb8d27136e95/g/e/geo1_institut_muenster_02.jpg" width="300">';
-  // add marker to map and bind popup
+
 
 }
 
@@ -126,6 +128,7 @@ function createRoute(){
  * get user's location via geolocation web api and display it on the map
  */
 function showLocation() {
+
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       // marker of current position
@@ -199,7 +202,7 @@ function initUI() {
 $(document).ready(function() {
 
   // overwrite submit handler for form used to save to Database
-  $('#saveParklot').submit(function(e) {
+  /*$('#saveParklot').submit(function(e) {
     e.preventDefault();
     // Append hidden field with actual GeoJSON structure
     var inputGeo = $('<input type="hidden" name="geometry" value=' + JSON.stringify(editableLayers.toGeoJSON())+ '>');
@@ -250,7 +253,7 @@ $(document).ready(function() {
       }
     });
     return false;
-  });
+  }); */
     // overwrite submit handler for form used to save to Database
   $('#saveFormRoutes').submit(function(e) {
     e.preventDefault();
@@ -269,7 +272,7 @@ $(document).ready(function() {
           console.log("Error while saving Route to Database");
         },
         success: function(res) {
-          console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
+          console.log("Route with the name '" + that.elements.name.value + "saved to Database.");
         }
       });
       inputRoute.remove();

@@ -45,7 +45,7 @@ html
               li.active(role='presentation')
                 a(href='Etappen') Etappen
               li(role='presentation')
-                a(href='marker') Marker  
+                a(href='marker') Marker
 
             br
           #content.col-md-8
@@ -61,14 +61,15 @@ html
             button.btn.btn-default(onclick='showLocation()') Meine Position anzeigen
             br
             br
-            form.form-inline(id='saveParklot' action='/api/save/name/' method='POST')
+            form.form-inline(id='saveFormRoutes' action='/api/save/name/' method='POST')
               input#name.form-control(type='text', name='name', placeholder='Name der Etappe')
               input.btn.btn-default(type='submit', value='Etappe in Datenbank speichern')
             br
-            form.form-inline(id='loadParklot' action='/api/load/name/' method='GET')
+            form.form-inline(id='loadFormRoutes' action='/api/load/route/' method='GET')
               input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')
-              input.btn.btn-default(type='submit', value='Parkplatz aus Datenbank laden')
-
+              input.btn.btn-default(type='submit', value='Etappe aus Datenbank laden')
+            br
+            butt
             br
             form.form-inline(id='loadFormRoutesVisualization' action='/api/load/route/' method='GET')
               input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')

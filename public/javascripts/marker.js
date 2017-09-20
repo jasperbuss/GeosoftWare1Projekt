@@ -212,64 +212,13 @@ function initUI() {
 $(document).ready(function() {
 
   // overwrite submit handler for form used to save to Database
+
+    // overwrite submit handler for form used to save to Database
   $('#saveParklot').submit(function(e) {
     e.preventDefault();
-    // Append hidden field with actual GeoJSON structure
-    var inputGeo = $('<input type="hidden" name="geometry" value=' + JSON.stringify(editableLayers.toGeoJSON())+ '>');
-    $(this).append(inputGeo);
-    var that = this;
-    // submit via ajax
-    $.ajax({
-      data: $(that).serialize(),
-      type: $(that).attr('method'),
-      url:  $(that).attr('action'),
-      error: function(xhr, status, err) {
-        console.log("Error while saving Geometry to Database");
-        alert("Error while saving Geometry to Database");
-      },
-      success: function(res) {
-         console.log("Geometry with the name '" + that.elements.name.value + "' saved to Database.");
-      }
-    });
-    inputGeo.remove();
-    return false;
-  });
-  // submit handler for forms used to load from Database
-  $('#loadParklot').submit(function(e) {
-    // Prevent default html form handling
-    e.preventDefault();
-
-    var that = this;
-
-    // submit via ajax
-    $.ajax({
-      // catch custom response code.
-      statusCode: {
-        404: function() {
-          alert("Geometry with the name '" + that.elements.loadname.value + "' is not present in the Database.");
-        }
-      },
-      data: '',
-      type: $(that).attr('method'),
-      // Dynamically create Request URL by appending requested name to /api prefix
-      url:  $(that).attr('action') + that.elements.loadname.value,
-      error: function(xhr, status, err) {
-      },
-      success: function(res) {
-        console.log("success");
-         // Add Geometry to Map
-         L.geoJSON(JSON.parse(res[0].geometry)).addTo(map);
-         alert("Geometry '" + that.elements.loadname.value + "' successfully loaded.");
-      }
-    });
-    return false;
-  });
-    // overwrite submit handler for form used to save to Database
-  $('#saveFormRoutes').submit(function(e) {
-    e.preventDefault();
-    if (currentRoute){
+    if (text){
       // Append hidden field with actual GeoJSON structure
-      var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
+      var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");
       $(this).append(inputRoute);
       var that = this;
 
@@ -290,7 +239,7 @@ $(document).ready(function() {
     }
   });
   // submit handler for forms used to load from Database
-  $('#loadFormRoutes').submit(function(e) {
+  $('#loadParklot').submit(function(e) {
     // Prevent default html form handling
     e.preventDefault();
     var that = this;
