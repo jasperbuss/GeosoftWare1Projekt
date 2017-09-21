@@ -234,33 +234,8 @@ routeControl.addTo(map);
                popupStart.bindPopup(popupStartcontent).openPopup();
 
 
-               $('#loadEtappe').submit(function(e) {
-                 // Prevent default html form handling
-                 e.preventDefault();
-                 var that = this;
 
-                 // submit via ajax
-                 $.ajax({
-                   // catch custom response code.
-                   statusCode: {
-                     404: function() {
-                     alert("Etappe with the name '" + that.elements.etappenname.value + "' is not present in the Database.");
-                     }
-                   },
-                   data: '',
-                   type: $(that).attr('method'),
-                   // Dynamically create Request URL by appending requested name to /api prefix
-                   url:  $(that).attr('action') + that.elements.etappenname.value,
-                   error: function(xhr, status, err) {
-                   },
-                   success: function(res) {
-                     var route = JSON.parse(res[0].route);
-                     routeControl.setWaypoints(route.waypoints).addTo(map);
-                     console.log("Route '" + that.elements.etappenname.value + "' successfully loaded.");
-                   }
-                 });
-                 return false;
-               });
+
            });
 
        }
@@ -310,66 +285,78 @@ routeControl.addTo(map);
                   marker.remove();
               });
 
-
-
-
-              $('#saveParkplatz').submit(function(e) {
-                e.preventDefault();
-                marker.closePopup();
-                marker.addTo(map);
-                if (currentRoute){
-                  // Append hidden field with actual GeoJSON structure
-                  var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
-                  $(this).append(inputRoute);
-                  var that = this;
-
-                  // submit via ajax
-                  $.ajax({
-                    data: $(that).serialize(),
-                    type: $(that).attr('method'),
-                    url:  $(that).attr('action'),
-                    error: function(xhr, status, err) {
-                      console.log("Error while saving Route to Database");
-                    },
-                    success: function(res) {
-                      console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
-                    }
-                  });
-                  inputRoute.remove();
-                  return false;
-                }
-              });
-                 $('#loadParkplatz').submit(function(e) {
-                   // Prevent default html form handling
-                   e.preventDefault();
-                   var that = this;
-
-                   // submit via ajax
-                   $.ajax({
-                     // catch custom response code.
-                     statusCode: {
-                       404: function() {
-                       alert("Etappe with the name '" + that.elements.parkname.value + "' is not present in the Database.");
-                       }
-                     },
-                     data: '',
-                     type: $(that).attr('method'),
-                     // Dynamically create Request URL by appending requested name to /api prefix
-                     url:  $(that).attr('action') + that.elements.parkname.value,
-                     error: function(xhr, status, err) {
-                     },
-                     success: function(res) {
-                       var route = JSON.parse(res[0].route);
-                       routeControl.setWaypoints(route.waypoints).addTo(map);
-                       console.log("Parkplatz " + that.elements.parkname.value + "' successfully loaded.");
-                     }
-                   });
-                   return false;
-                 });
-
-
              });
+
+             // Overwrite HTML Form handlers once document is created.
+             $(document).ready(function() {
+
+               $('#loadEtappe').submit(function(e) {
+                 // Prevent default html form handling
+                 e.preventDefault();
+                 var that = this;
+
+                 // submit via ajax
+                 $.ajax({
+                   // catch custom response code.
+                   statusCode: {
+                     404: function() {
+                     alert("Etappe with the name '" + that.elements.etappenname.value + "' is not present in the Database.");
+                     }
+                   },
+                   data: '',
+                   type: $(that).attr('method'),
+                   // Dynamically create Request URL by appending requested name to /api prefix
+                   url:  $(that).attr('action') + that.elements.etappenname.value,
+                   error: function(xhr, status, err) {
+                   },
+                   success: function(res) {
+                     var route = JSON.parse(res[0].route);
+                     routeControl.setWaypoints(route.waypoints).addTo(map);
+                     console.log("Route '" + that.elements.etappenname.value + "' successfully loaded.");
+                   }
+                 });
+                 return false;
+               });
+               if ((document.getElementById('etname')).value != ""){
+                 document.getElementById('butnid').click();
+               }
+
+
+
+             $('#loadParkplatz').submit(function(e) {
+               // Prevent default html form handling
+               e.preventDefault();
+               var that = this;
+
+               // submit via ajax
+               $.ajax({
+                 // catch custom response code.
+                 statusCode: {
+                   404: function() {
+                   alert("Etappe with the name '" + that.elements.parkname.value + "' is not present in the Database.");
+                   }
+                 },
+                 data: '',
+                 type: $(that).attr('method'),
+                 // Dynamically create Request URL by appending requested name to /api prefix
+                 url:  $(that).attr('action') + that.elements.parkname.value,
+                 error: function(xhr, status, err) {
+                 },
+                 success: function(res) {
+                   var route = JSON.parse(res[0].route);
+                   routeControl.setWaypoints(route.waypoints).addTo(map);
+                   console.log("Parkplatz " + that.elements.parkname.value + "' successfully loaded.");
+                 }
+               });
+               return false;
+             });
+             if ((document.getElementById('loadname')).value != ""){
+               document.getElementById('btnid').click();
+             }
+
       //Override the default handler for the saveMarker form previously defined
+});
+
 
 
 }
@@ -386,7 +373,6 @@ L.DrawToolbar.include({
         ];
     }
 });
-
 
 
 
@@ -466,47 +452,17 @@ function initUI() {
 }
 
 // Overwrite HTML Form handlers once document is created.
-$(document).ready(function() {
+/*$(document).ready(function() {
 
-  // submit handler for forms used to load from Database
-  $('#loadFormRoutesVisualization').submit(function(e) {
-    // Prevent default html form handling
-    e.preventDefault();
-    var that = this;
 
-    // submit via ajax
-    $.ajax({
-      // catch custom response code.
-      statusCode: {
-        404: function() {
-        alert("Route with the name '" + that.elements.loadEtappe.value + "' is not present in the Database.");
-        }
-      },
-      data: '',
-      type: $(that).attr('method'),
-      // Dynamically create Request URL by appending requested name to /api prefix
-      url:  $(that).attr('action') + that.elements.loadEtappe.value,
-      error: function(xhr, status, err) {
-      },
-      success: function(res) {
-        var route = JSON.parse(res[0].route);
-        console.log(res[0].route);
-        L.geoJSON(RouteToGeoJSON(route.route)).addTo(visualizationLayers);
-        console.log("Route '" + that.elements.loadEtappe.value + "' successfully visualized.");
-      }
-    });
-    return false;
-  });
 
-  if ((document.getElementById('etappename')).value != ""){
+  if ((document.getElementById('etappenname')).value != ""){
     document.getElementById('butId').click();
 
   }
-  if((document.getElementById('parkname')).value !=""){
-    document.getElementById('btnid').click();
-  }
-});
 
+});
+*/
 
 // Credit to https://github.com/perliedman/leaflet-routing-machine/blob/344ff09c8bb94d4e42fa583286d95396d8227c65/src/L.Routing.js
 function RouteToGeoJSON(route){

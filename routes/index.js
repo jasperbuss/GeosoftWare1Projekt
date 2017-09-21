@@ -20,12 +20,12 @@ router.get('/Etappen/:id/', function(req, res, next) {
   res.render('Etappen', {loadEtappe: req.params.id});
 });
 
-router.get('/marker/', function(req, res, next) {
-  res.render('marker', {});
-});
+//router.get('/marker/', function(req, res, next) {
+//  res.render('marker', {});
+//});
 //permalink
-router.get('/marker/:id/', function(req, res, next) {
-  res.render('marker', {loadParkplatz: req.params.id});
+router.get('/Etappen/:id/', function(req, res, next) {
+  res.render('Etappen', {loadParkplatz: req.params.id});
 });
 
 

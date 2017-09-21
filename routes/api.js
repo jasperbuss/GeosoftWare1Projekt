@@ -31,25 +31,28 @@ router.post('/save/parklot/', function(req, res, next) {
 /* GET stored marker */
 router.get('/load/parklot/:name/', function(req, res, next) {
 
-    // Set Collection
-    var collection = db.get('jsoncollection');
+
+
+  // Set Collection
+  var collection = db.get('jsoncollection');
     //res.setHeader('Content-type', 'application/json');
     // Retrieve Entries with matching Name from Database. Compelete Entry is returned on match.
-    collection.find({name: { $eq: req.params.name }},{},function(e,geometry){
-        // Check for connection/syntax errors
-        if(e){
-            res.status(500).end("Failed to retrieve results from Database.");
-        }else{
-            // Check if there is an Entry - else fail
-            if(geometry.length != 0){
-                // Entry is returned
-                res.send(geometry);
-            } else {
-                // No entry was found
-                res.status(404).end("No such Object in the Database.");
-            }
-        };
-    });
+    collection.find({name: { $eq: req.params.name }},{},function(e,route){
+
+    // Check for connection/syntax errors
+    if(e){
+      res.status(500).end("Failed to retrieve results from Database.");
+    }else{
+      // Check if there is an Entry - else fail
+      if(route.length != 0){
+        // Entry is returned
+        res.send(route);
+      } else {
+        // No entry was found
+        res.status(404).end("No such Object in the Database.");
+      }
+    };
+  });
 });
 /* POST Geojson to be saved to database. */
 router.post('/save/etappe/', function(req, res, next) {

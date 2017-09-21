@@ -65,16 +65,13 @@ html
               input.btn-default(type='submit', value='Etappe in Datenbank speichern')
             br
             form.form-inline(id='loadEtappe' action='/api/load/etappe/' method='GET')
-              input#name.form-control(type='text', name='etappenname', placeholder='Name der Etappe')
+              input#etname.form-control(type='text', name='etappenname', placeholder=loadEtappe)
               input#butId.btn.btn-default(type='submit', value='Etappe aus Datenbank laden')
             br
             form.form-inline(id='loadParkplatz' action='/api/load/parklot/' method='GET')
-              input#name.form-control(type='text', name='parkname', placeholder='Name des Parkplatzes')
-              input#btnid.btn.btn-default(type='submit', value='Parkplatz Datenbank aus laden')
+              input#loadname.form-control(type='text', name='parkname', placeholder = loadParkplatz)
+              input#btnid.btn.btn-default(type='submit', value='Parkplatz aus Datenbank laden')
             br
-            form.form-inline(id='saveParkplatz' action='/api/load/parklot/' method='GET')
-              input#name.form-control(type='text', name='parkname', placeholder='Name des Parkplatzes')
-              input#btnid.btn.btn-default(type='submit', value='Parkplatz Datenbank aus laden')
 
             br
             button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Routen
