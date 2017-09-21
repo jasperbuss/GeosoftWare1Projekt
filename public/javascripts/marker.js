@@ -44,13 +44,44 @@ function initMap() {
     geocoder: L.Control.Geocoder.nominatim()
   });
   routeControl.addTo(map);
+
+
 */
+
+
+/*L.easyButton('fa-level-up',
+    function() {
+
+        var routing = L.Routing.control({
+            plan: L.Routing.plan([
+                L.latLng(50.07132, 35.14103),
+                L.latLng(50.05459, 35.18239)
+            ], {
+                waypointIcon: function(i) {
+                    return new L.Icon.Label.Default({
+                        labelText: String.fromCharCode(65 + i)
+                    });
+                },
+                geocoder: L.Control.Geocoder.nominatim()
+            }),
+            routeWhileDragging: true,
+            routeDragTimeout: 250
+        });
+
+var rlayer = L.layerGroup([routing]);
+map.hasLayer(rlayer) ? map.removeLayer(rlayer) : map.addLayer(rlayer);
+
+},
+    'Display Route').addTo(map);
+*/
+
+
   map.on('click', function(e){
     var markerOnMap = e.latlng;
     var text = '<form class="meineForm" id="saveMarker" action="/api/save/marker/" method="POST">'+
             '<div class="form-group">'+
             '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
-            '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
+            '<input type="text" placeholder="Name vom Parkplatz" id="name" name="name" class="form-control"/>'+
             '</div>'+
             '<div class="form-group">'+
             '<label class="control-label col-sm-5"><strong>Art: </strong></label>'+
@@ -76,10 +107,15 @@ function initMap() {
 
                   });
     marker = new L.marker(markerOnMap, {icon: parkIcon}).addTo(map).bindPopup(text).openPopup();
+    marker.on('popupclose', function (e) {
+                marker.remove();
+            });
     // overwrite submit handler for form used to save to Database
 
     $('#saveMarker').submit(function(e) {
       e.preventDefault();
+      marker.closePopup();
+      marker.addTo(map);
       if (currentRoute){
         // Append hidden field with actual GeoJSON structure
         var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");

@@ -42,7 +42,7 @@ var baselayers = {
     var router = L.routing.osrmv1();
     var wps = [];
 //Adds routes as layers
-map.on('click', function(e) {
+/*map.on('click', function(e) {
       wps.push(new L.Routing.Waypoint(e.latlng));
       if (wps.length % 2 === 0) {
         router.route(wps.slice(wps.length - 2, wps.length), function(err, routes) {
@@ -57,7 +57,7 @@ map.on('click', function(e) {
     "Etappen": routeLayer
   }
 L.control.layers(baselayers, overlays).addTo(map);
-
+*/
 
 
 // add controls to map
@@ -206,11 +206,16 @@ routeControl.addTo(map);
                    '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Etappe speichern</button></div>'+              '</div>'+
                    '</form>';
 
+
+             var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
+                                     iconSize: [30, 21]
+
+           });
                routeControl.spliceWaypoints(routeControl.getWaypoints().length - 1, 1, e.latlng);
                var waypoints =  routeControl.getWaypoints();
                map.closePopup();
                var koordinatenStart = new L.LatLng(waypoints[0].latLng.lat,waypoints[0].latLng.lng);
-               var popupStart = L.marker(koordinatenStart).addTo(visualizationLayers);
+               var popupStart = L.marker(koordinatenStart, {icon: parkIcon}).addTo(visualizationLayers);
                popupStart.bindPopup(popupStartcontent).openPopup();
 
                $('#saveEtappe').submit(function(e) {
