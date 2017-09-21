@@ -60,19 +60,22 @@ html
             button.btn.btn-default(onclick='showLocation()') Meine Position anzeigen
             br
             br
-            form.form-inline(id='saveParkplatz' action='/api/save/name/' method='POST')
+            form.form-inline(id='saveEtappe' action='/api/save/etappe/' method='POST')
               input#name.form-control(type='text', name='name', placeholder='Name der Etappe')
               input.btn-default(type='submit', value='Etappe in Datenbank speichern')
             br
-            form.form-inline(id='loadFormRoutes' action='/api/load/route/' method='GET')
-              input#name.form-control(type='text', name='loadingname', placeholder='Name der Etappe')
+            form.form-inline(id='loadEtappe' action='/api/load/etappe/' method='GET')
+              input#name.form-control(type='text', name='etappenname', placeholder='Name der Etappe')
               input#butId.btn.btn-default(type='submit', value='Etappe aus Datenbank laden')
             br
-            butt
+            form.form-inline(id='loadParkplatz' action='/api/load/parklot/' method='GET')
+              input#name.form-control(type='text', name='parkname', placeholder='Name des Parkplatzes')
+              input#btnid.btn.btn-default(type='submit', value='Parkplatz Datenbank aus laden')
             br
-            form.form-inline(id='loadFormRoutesVisualization' action='/api/load/route/' method='GET')
-              input#name.form-control(type='text', name='loadname', placeholder='Name der Etappe')
-              input.btn.btn-default(type='submit', value='Visualisiere Etappe')
+            form.form-inline(id='saveParkplatz' action='/api/load/parklot/' method='GET')
+              input#name.form-control(type='text', name='parkname', placeholder='Name des Parkplatzes')
+              input#btnid.btn.btn-default(type='submit', value='Parkplatz Datenbank aus laden')
+
             br
             button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Routen
             br

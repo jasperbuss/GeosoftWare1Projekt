@@ -6,7 +6,7 @@
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, marker,  layercontrol, editableLayers, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var map, marker,regPopup,  layercontrol, editableLayers, visualizationLayers, drawControl,popupMarker, routeControl, routeSwitch, currentRoute;
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
@@ -76,9 +76,13 @@ map.hasLayer(rlayer) ? map.removeLayer(rlayer) : map.addLayer(rlayer);
 */
 
 
+  popupMarker = new L.featureGroup();
+  map.addLayer(popupMarker);
+
+
   map.on('click', function(e){
     var markerOnMap = e.latlng;
-    var text = '<form class="meineForm" id="saveMarker" action="/api/save/marker/" method="POST">'+
+    var text = '<form class="meineForm" id="saveParkplatz" action="/api/save/marker/" method="POST">'+
             '<div class="form-group">'+
             '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
             '<input type="text" placeholder="Name vom Parkplatz" id="name" name="name" class="form-control"/>'+
@@ -106,13 +110,14 @@ map.hasLayer(rlayer) ? map.removeLayer(rlayer) : map.addLayer(rlayer);
                       iconSize: [30, 21]
 
                   });
-    marker = new L.marker(markerOnMap, {icon: parkIcon}).addTo(map).bindPopup(text).openPopup();
+    marker = new L.marker(markerOnMap, {icon: parkIcon}).addTo(popupMarker).bindPopup(text).openPopup();
     marker.on('popupclose', function (e) {
                 marker.remove();
             });
+
     // overwrite submit handler for form used to save to Database
 
-    $('#saveMarker').submit(function(e) {
+    $('#saveParkplatz').submit(function(e) {
       e.preventDefault();
       marker.closePopup();
       marker.addTo(map);
@@ -142,6 +147,8 @@ map.hasLayer(rlayer) ? map.removeLayer(rlayer) : map.addLayer(rlayer);
 
 
 
+
+
   // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
 /*  map.on('click', function(e) {
     if (routeSwitch){
@@ -168,16 +175,16 @@ map.hasLayer(rlayer) ? map.removeLayer(rlayer) : map.addLayer(rlayer);
 
 
 
-routeControl.on('routeselected', function(e) {
+/*routeControl.on('routeselected', function(e) {
         currentRoute = {};
         currentRoute.waypoints = routeControl.getWaypoints();
         currentRoute.route = e.route;
 
     });
+    */
   // setup Leaflet.draw plugin
   // layer to draw on
-  editableLayers = new L.FeatureGroup();
-  map.addLayer(editableLayers);
+
   // Leaflet.draw options
   var options = {
       position: 'bottomright',
@@ -186,20 +193,15 @@ routeControl.on('routeselected', function(e) {
           remove: false
       }
   };
-    // setup Leaflet.draw plugin
-  // layer to draw on
-  visualizationLayers = new L.FeatureGroup();
-  map.addLayer(visualizationLayers);
 
-  // add controls to map
-
-  // make icon with photo of GEO1 as the marker image
-//  var geo1icon = L.icon({iconUrl: 'https://www.uni-muenster.de/imperia/md/images/geowissenschaften/geo1.jpg', iconSize: [50, 41]});
-  // compose popup with a bit of text and another photo
-  var geo1text = 'Das wundervolle GEO1-Gebäude an der Heisenbergstraße 2 in Münster <img src="http://www.eternit.de/referenzen/media/catalog/product/cache/2/image/890x520/9df78eab33525d08d6e5fb8d27136e95/g/e/geo1_institut_muenster_02.jpg" width="300">';
-  // add marker to map and bind popup
 
 }
+
+
+
+function clearPopup(){
+  popupMarker.clearLayers(popupMarker);
+  }
 
 /**
  * get user's location via geolocation web api and display it on the map
@@ -308,35 +310,6 @@ $(document).ready(function() {
     return false;
   });
 
-  // submit handler for forms used to load from Database
-  $('#loadFormRoutesVisualization').submit(function(e) {
-    // Prevent default html form handling
-    e.preventDefault();
-    var that = this;
-
-    // submit via ajax
-    $.ajax({
-      // catch custom response code.
-      statusCode: {
-        404: function() {
-        alert("Route with the name '" + that.elements.loadname.value + "' is not present in the Database.");
-        }
-      },
-      data: '',
-      type: $(that).attr('method'),
-      // Dynamically create Request URL by appending requested name to /api prefix
-      url:  $(that).attr('action') + that.elements.loadname.value,
-      error: function(xhr, status, err) {
-      },
-      success: function(res) {
-        var route = JSON.parse(res[0].route);
-        console.log(res[0].route);
-        L.geoJSON(RouteToGeoJSON(route.route)).addTo(visualizationLayers);
-        console.log("Route '" + that.elements.loadname.value + "' successfully visualized.");
-      }
-    });
-    return false;
-  });
 
   if ((document.getElementById('loadname')).value != ""){
     document.getElementById('btnid').click();
@@ -407,9 +380,6 @@ function createButton(label, container) {
     btn.setAttribute('type', 'button');
     btn.innerHTML = label;
     return btn;
-}
-function clearVisualizationLayer() {
-  visualizationLayers.clearLayers();
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {

@@ -25,7 +25,7 @@ router.get('/marker/', function(req, res, next) {
 });
 //permalink
 router.get('/marker/:id/', function(req, res, next) {
-  res.render('marker', {loadParklot: req.params.id});
+  res.render('marker', {loadParkplatz: req.params.id});
 });
 
 

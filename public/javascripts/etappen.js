@@ -6,7 +6,7 @@
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, routes, marker,waypoints,zwischenspeicher, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var map, routes, marker,waypoints,cacheSave, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
@@ -106,26 +106,13 @@ routeControl.addTo(map);
 
   // setup Leaflet.draw plugin
   // layer to draw on
-  editableLayers = new L.FeatureGroup();
-  map.addLayer(editableLayers);
-  // Leaflet.draw options
-  var options = {
-      position: 'bottomright',
-      edit: {
-          featureGroup: editableLayers, //REQUIRED!!
-          remove: false
-      }
-  };
+
     // setup Leaflet.draw plugin
   // layer to draw on
   visualizationLayers = new L.FeatureGroup();
   map.addLayer(visualizationLayers);
 
   // add controls to map
-
-  // make icon with photo of GEO1 as the marker image
-//  var geo1icon = L.icon({iconUrl: 'https://www.uni-muenster.de/imperia/md/images/geowissenschaften/geo1.jpg', iconSize: [50, 41]});
-  // compose popup with a bit of text and another photo
 
 
   routeControl.on('routeselected', function(e) {
@@ -160,8 +147,8 @@ routeControl.addTo(map);
   map.on('click', function(e) {
        if (routeSwitch){
            var container = L.DomUtil.create('div'),
-               startBtn = createButton('Start from this location', container),
-               destBtn = createButton('Go to this location', container);
+               startBtn = createButton('From here..', container),
+               destBtn = createButton('..to here', container);
            console.log(e.latlng);
            L.popup()
                .setContent(container)
@@ -169,13 +156,13 @@ routeControl.addTo(map);
                .openOn(map);
            L.DomEvent.on(startBtn, 'click', function() {
                routeControl.spliceWaypoints(0, 1, e.latlng);
-               zwischenspeicher = e.latlng;
+               cacheSave = e.latlng;
                map.closePopup();
 
            });
            L.DomEvent.on(destBtn, 'click', function() {
 
-               var popupStartcontent = '<form  id="saveEtappe" action="/api/save/etappe/" method="POST">'+
+               var popupStartcontent = '<form  id="saveEtappe" action="/api/save/name/" method="POST">'+
                    '<div class="form-group">'+
                    '<label class="control-label col-sm-5"><strong>Etappenname: </strong></label>'+
                    '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
@@ -211,6 +198,34 @@ routeControl.addTo(map);
                                      iconSize: [30, 21]
 
            });
+
+
+           $('#saveEtappe').submit(function(e) {
+             e.preventDefault();
+             console.log("specki hat geburtstag");
+             if (currentRoute){
+               // Append hidden field with actual GeoJSON structure
+               var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
+               $(this).append(inputRoute);
+               var that = this;
+
+               // submit via ajax
+               $.ajax({
+                 data: $(that).serialize(),
+                 type: $(that).attr('method'),
+                 url:  $(that).attr('action'),
+                 error: function(xhr, status, err) {
+                   console.log("Error while saving Etappe to Database");
+                 },
+                 success: function(res) {
+                   console.log("Etappe with the name '" + that.elements.name.value + "' saved to Database.");
+                 }
+               });
+               inputRoute.remove();
+               return false;
+             }
+           });
+
                routeControl.spliceWaypoints(routeControl.getWaypoints().length - 1, 1, e.latlng);
                var waypoints =  routeControl.getWaypoints();
                map.closePopup();
@@ -218,30 +233,7 @@ routeControl.addTo(map);
                var popupStart = L.marker(koordinatenStart, {icon: parkIcon}).addTo(visualizationLayers);
                popupStart.bindPopup(popupStartcontent).openPopup();
 
-               $('#saveEtappe').submit(function(e) {
-                 e.preventDefault();
-                 if (currentRoute){
-                   // Append hidden field with actual GeoJSON structure
-                   var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");
-                   $(this).append(inputRoute);
-                   var that = this;
 
-                   // submit via ajax
-                   $.ajax({
-                     data: $(that).serialize(),
-                     type: $(that).attr('method'),
-                     url:  $(that).attr('action'),
-                     error: function(xhr, status, err) {
-                       console.log("Error while saving Route to Database");
-                     },
-                     success: function(res) {
-                       console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
-                     }
-                   });
-                   inputRoute.remove();
-                   return false;
-                 }
-               });
                $('#loadEtappe').submit(function(e) {
                  // Prevent default html form handling
                  e.preventDefault();
@@ -252,19 +244,19 @@ routeControl.addTo(map);
                    // catch custom response code.
                    statusCode: {
                      404: function() {
-                     alert("Route with the name '" + that.elements.loadname.value + "' is not present in the Database.");
+                     alert("Etappe with the name '" + that.elements.etappenname.value + "' is not present in the Database.");
                      }
                    },
                    data: '',
                    type: $(that).attr('method'),
                    // Dynamically create Request URL by appending requested name to /api prefix
-                   url:  $(that).attr('action') + that.elements.loadname.value,
+                   url:  $(that).attr('action') + that.elements.etappenname.value,
                    error: function(xhr, status, err) {
                    },
                    success: function(res) {
                      var route = JSON.parse(res[0].route);
                      routeControl.setWaypoints(route.waypoints).addTo(map);
-                     console.log("Route '" + that.elements.loadname.value + "' successfully loaded.");
+                     console.log("Route '" + that.elements.etappenname.value + "' successfully loaded.");
                    }
                  });
                  return false;
@@ -283,17 +275,12 @@ routeControl.addTo(map);
    */
   map.on(L.Draw.Event.CREATED, function (e) {
 
-      var popupContent = '<form class="meineForm" id="Parkplatz" action="/api/save/marker/" method="POST">'+
+      var popupContent = '<form class="saveParkplatz" id="saveParkplatz" action="/api/save/parklot/" method="POST">'+
           '<div class="form-group">'+
           '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
           '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
           '</div>'+
           '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Art: </strong></label>'+
-          '<select class="form-control" id="art" name="art">'+
-          '<option value="Parkplatz">Parkplatz</option>'+
-          '<option value="Zuschauer">Zuschauerplatz</option>'+
-          '</select>'+
           '</div>'+
           '<div class="form-group">'+
           '<label class="control-label col-sm-5"><strong>Kapazität: </strong></label>'+
@@ -308,43 +295,76 @@ routeControl.addTo(map);
           '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Marker speichern</button></div>'+              '</div>'+
           '</form>';
 
-
+      var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
+                            iconSize: [30, 21]});
       var type = e.layerType,
           layer = e.layer;
+                var popup = L.popup({Width:1000
+                    })
+                    .setContent(popupContent)
+                    .setLatLng(layer.getLatLng())
       //add the marker to a layer
       editableLayers.addLayer(layer);
-      L.marker(layer.getLatLng()).addTo(map);
-      var popup = L.popup({Width:1000
-          })
-          .setContent(popupContent)
-          .setLatLng(layer.getLatLng())
-          .openOn(map);
+      marker = new L.marker(layer.getLatLng(), {icon: parkIcon}).addTo(map).bindPopup(popup).openPopup();
+      marker.on('popupclose', function (e) {
+                  marker.remove();
+              });
 
-          $('#saveMarker').submit(function(e) {
-                     e.preventDefault();
 
-                         // Append hidden field with actual GeoJSON structure
-                         var inputGeo = $('<input type="hidden" name="geometry" value=' + JSON.stringify(editableLayers.toGeoJSON())+ '>');
-                         $(this).append(inputGeo);
-                         var that = this;
 
-                         // submit via ajax
-                         $.ajax({
-                             data: $(that).serialize(),
-                             type: $(that).attr('method'),
-                             url:  $(that).attr('action'),
-                             error: function(xhr, status, err) {
-                                 console.log("Error while saving Route to Database");
-                             },
-                             success: function(res) {
-                                 console.log("Route with the name '" + that.elements.name.value+"' saved to Database.");
-                             }
-                         });
-                         inputGeo.remove();
-                         map.closePopup();
 
-                     return false;
+              $('#saveParkplatz').submit(function(e) {
+                e.preventDefault();
+                marker.closePopup();
+                marker.addTo(map);
+                if (currentRoute){
+                  // Append hidden field with actual GeoJSON structure
+                  var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
+                  $(this).append(inputRoute);
+                  var that = this;
 
+                  // submit via ajax
+                  $.ajax({
+                    data: $(that).serialize(),
+                    type: $(that).attr('method'),
+                    url:  $(that).attr('action'),
+                    error: function(xhr, status, err) {
+                      console.log("Error while saving Route to Database");
+                    },
+                    success: function(res) {
+                      console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
+                    }
+                  });
+                  inputRoute.remove();
+                  return false;
+                }
+              });
+                 $('#loadParkplatz').submit(function(e) {
+                   // Prevent default html form handling
+                   e.preventDefault();
+                   var that = this;
+
+                   // submit via ajax
+                   $.ajax({
+                     // catch custom response code.
+                     statusCode: {
+                       404: function() {
+                       alert("Etappe with the name '" + that.elements.parkname.value + "' is not present in the Database.");
+                       }
+                     },
+                     data: '',
+                     type: $(that).attr('method'),
+                     // Dynamically create Request URL by appending requested name to /api prefix
+                     url:  $(that).attr('action') + that.elements.parkname.value,
+                     error: function(xhr, status, err) {
+                     },
+                     success: function(res) {
+                       var route = JSON.parse(res[0].route);
+                       routeControl.setWaypoints(route.waypoints).addTo(map);
+                       console.log("Parkplatz " + that.elements.parkname.value + "' successfully loaded.");
+                     }
+                   });
+                   return false;
                  });
 
 
@@ -362,6 +382,7 @@ L.DrawToolbar.include({
                 handler: new L.Draw.Marker(map),
                 title: 'Objekt erstellen'
             }
+
         ];
     }
 });
@@ -458,27 +479,31 @@ $(document).ready(function() {
       // catch custom response code.
       statusCode: {
         404: function() {
-        alert("Route with the name '" + that.elements.loadname.value + "' is not present in the Database.");
+        alert("Route with the name '" + that.elements.loadEtappe.value + "' is not present in the Database.");
         }
       },
       data: '',
       type: $(that).attr('method'),
       // Dynamically create Request URL by appending requested name to /api prefix
-      url:  $(that).attr('action') + that.elements.loadname.value,
+      url:  $(that).attr('action') + that.elements.loadEtappe.value,
       error: function(xhr, status, err) {
       },
       success: function(res) {
         var route = JSON.parse(res[0].route);
         console.log(res[0].route);
         L.geoJSON(RouteToGeoJSON(route.route)).addTo(visualizationLayers);
-        console.log("Route '" + that.elements.loadname.value + "' successfully visualized.");
+        console.log("Route '" + that.elements.loadEtappe.value + "' successfully visualized.");
       }
     });
     return false;
   });
 
-  if ((document.getElementById('loadingname')).value != ""){
+  if ((document.getElementById('etappename')).value != ""){
     document.getElementById('butId').click();
+
+  }
+  if((document.getElementById('parkname')).value !=""){
+    document.getElementById('btnid').click();
   }
 });
 
@@ -547,9 +572,7 @@ function createButton(label, container) {
     btn.innerHTML = label;
     return btn;
 }
-function clearVisualizationLayer() {
-  visualizationLayers.clearLayers();
-}
+
 
 document.addEventListener("DOMContentLoaded", function(event) {
   initMap();

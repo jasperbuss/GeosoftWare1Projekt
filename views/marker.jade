@@ -25,8 +25,7 @@ html
         link(rel='stylesheet', href='/stylesheets/leaflet-routing-machine.css')
         script(src='/javascripts/leaflet-routing-machine.js')
         // Leaflet Reverse Lookup
-        // Leaflet EasyButton
-        script(src = 'https://github.com/CliffCloud/Leaflet.EasyButton')
+        
         link(rel='stylesheet', href='/stylesheets/Control.Geocoder.css')
         script(src='/javascripts/Control.Geocoder.js')
 
@@ -71,5 +70,5 @@ html
               input#btnid.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze aus Datenbank laden')
 
 
-            button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Parkplätze
+            button.btn.btn-default(onclick='clearPopup()') Lösche alle visualisierten Parkplätze
             br

@@ -4,7 +4,7 @@ var monk = require('monk');
 var db = monk('localhost:27017/Abschlussaufgabe');
 
 //save marker
-router.post('/api/save/marker/', function(req, res, next) {
+router.post('/save/parklot/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
@@ -29,7 +29,7 @@ router.post('/api/save/marker/', function(req, res, next) {
 
 
 /* GET stored marker */
-router.get('/load/marker/:name/', function(req, res, next) {
+router.get('/load/parklot/:name/', function(req, res, next) {
 
     // Set Collection
     var collection = db.get('jsoncollection');
@@ -52,7 +52,8 @@ router.get('/load/marker/:name/', function(req, res, next) {
     });
 });
 /* POST Geojson to be saved to database. */
-router.post('/api/save/etappe/', function(req, res, next) {
+router.post('/save/etappe/', function(req, res, next) {
+  console.log("IM POSTING");
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
@@ -82,11 +83,14 @@ router.post('/api/save/etappe/', function(req, res, next) {
 /* GET stored Route */
 router.get('/load/etappe/:name/', function(req, res, next) {
 
+
+
   // Set Collection
   var collection = db.get('jsoncollection');
     //res.setHeader('Content-type', 'application/json');
     // Retrieve Entries with matching Name from Database. Compelete Entry is returned on match.
     collection.find({Etappenname: { $eq: req.params.name }},{},function(e,route){
+
     // Check for connection/syntax errors
     if(e){
       res.status(500).end("Failed to retrieve results from Database.");
@@ -102,10 +106,5 @@ router.get('/load/etappe/:name/', function(req, res, next) {
     };
   });
 });
-
-
-
-
-
 
 module.exports = router;
