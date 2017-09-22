@@ -28,8 +28,11 @@ router.get('/Etappen/:id/', function(req, res, next) {
   res.render('Etappen', {loadParkplatz: req.params.id});
 });
 
-router.get('/marker/', function(req, res, next) {
-  res.render('marker', {});
+router.get('/parkzusch/', function(req, res, next) {
+  res.render('parkzusch', {});
 });
 
+router.get('/parkzusch/:id/', function(req, res, next) {
+  res.render('parkzusch', {loadParkplatz: req.params.id});
+});
 module.exports = router;

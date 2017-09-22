@@ -1,12 +1,12 @@
 /**
- * Geosoftware I, SoSe 2017, Aufgabe
- * @author
+ * Abschlussaufgabe, Geosoftware 1
+ * @author Jasper Buß
  */
 
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, routes, marker,waypoints,cacheSave, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var map, routes,popupMarker, marker,waypoints,cacheSave, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
@@ -39,10 +39,10 @@ var baselayers = {
 }).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
 */
 
-  //  var router = L.routing.osrmv1();
-  //  var wps = [];
+/*   var router = L.routing.osrmv1();
+    var wps = [];
 //Adds routes as layers
-/*map.on('click', function(e) {
+map.on('click', function(e) {
       wps.push(new L.Routing.Waypoint(e.latlng));
       if (wps.length % 2 === 0) {
         router.route(wps.slice(wps.length - 2, wps.length), function(err, routes) {
@@ -57,8 +57,8 @@ var baselayers = {
     "Etappen": routeLayer
   }
 L.control.layers(baselayers, overlays).addTo(map);
-*/
 
+*/
 
 // add controls to map
 
@@ -69,20 +69,27 @@ routeControl = L.Routing.control({
       null
   ],
   routeWhileDragging: true,
-  show:true,
-  position: 'topleft',
+  show:false,
+  createMarker: function() { return null; },
+    position: 'topleft',
+    lineOptions: {
+      styles:[{color: 'blue', opacity: 0.15, weight: 9},
+      {color: 'white', opacity: 0.8, weight: 6},
+      {color: 'blue', opacity: 1, weight: 2}]
+
+   },
   geocoder: L.Control.Geocoder.nominatim()
 });
 routeControl.addTo(map);
 
 
 
-
-
+popupMarker = new L.FeatureGroup();
+map.addLayer(popupMarker);
 
   // layer to draw on
-  visualizationLayers = new L.FeatureGroup();
-  map.addLayer(visualizationLayers);
+visualizationLayers = new L.FeatureGroup();
+map.addLayer(visualizationLayers);
 
   // add controls to map
   routeControl.on('routeselected', function(e) {
@@ -135,7 +142,7 @@ routeControl.addTo(map);
                var popupStartcontent = '<form  id="saveEtappe" action="/api/save/etappe/" method="POST">'+
                    '<div class="form-group">'+
                    '<label class="control-label col-sm-5"><strong>Etappenname: </strong></label>'+
-                   '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
+                   '<input type="text" placeholder="Required" id="etappenname" name="etappenname" class="form-control"/>'+
                    '</div>'+
                    '<div class="form-group">'+
                    '<label id="starttermin" class="control-label col-sm-2"><strong>Starttermin: </strong></label>'+
@@ -201,6 +208,7 @@ routeControl.addTo(map);
                      }
                    });
                    inputRoute.remove();
+                   map.closePopup();
                    return false;
                  }
 
@@ -224,7 +232,7 @@ routeControl.addTo(map);
       var popupContent = '<form class="saveParkplatz" id="saveParkplatz" action="/api/save/parklot/" method="POST">'+
           '<div class="form-group">'+
           '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
-          '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
+          '<input type="text" placeholder="Required" id="parkname" name="parkname" class="form-control"/>'+
           '</div>'+
           '<div class="form-group">'+
           '</div>'+
@@ -260,7 +268,6 @@ routeControl.addTo(map);
 
                 e.preventDefault();
 
-                console.log("1234");
                 if (true){
                   // Append hidden field with actual GeoJSON structure
                   var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
@@ -276,7 +283,7 @@ routeControl.addTo(map);
                       console.log("Error while saving Etappe to Database");
                     },
                     success: function(res) {
-                      console.log("Etappe with the name '" + that.elements.name.value + "' saved to Database.");
+                      console.log("Etappe with the name '" + that.elements.parkname.value + " saved to Database.");
                     }
                   });
                   inputRoute.remove();
@@ -310,11 +317,14 @@ $(document).ready(function() {
       error: function(xhr, status, err) {
       },
       success: function(res) {
+
         var route = JSON.parse(res[0].route);
+
         routeControl.setWaypoints(route.waypoints).addTo(map);
         console.log("Route '" + that.elements.etappenname.value + "' successfully loaded.");
       }
     });
+
     return false;
   });
   if ((document.getElementById('etname')).value != ""){
@@ -354,13 +364,47 @@ if ((document.getElementById('loadname')).value != ""){
   document.getElementById('btnid').click();
 }
 
-//Override the default handler for the saveMarker form previously defined
+$.ajax({
+            // catch custom response code.
+            data: '',
+            type: 'GET',
+            contentType: "application/json",
+            // Dynamically create Request URL by appending requested name to /api prefix
+            url:  'https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='+t.values.startLocation.name,
+            error: function(xhr, status, err) {
+                //TODO
+                console.log(err);
+            },
+            success: function(res) {
+                var pages = res.query.pages;
+                var key = Object.keys(pages)[0];
+                startort_wikipedia = res.query.pages[key].extract;
+            }
+        }).then(function () {
+            document.getElementById('startort' + t.id).innerHTML = "Wikipedia <a href='https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='" + t.values.startLocation.name+ "'>(source)</a>: <br>" + startlocation_wikipedia;
+        });
+        $.ajax({
+                    // catch custom response code.
+                    data: '',
+                    type: 'GET',
+                    contentType: "application/json",
+                    headers: { 'Api-User-Agent': 'Study Project. [Contact: j_buss16@wwu.de]/' },
+                    // Dynamically create Request URL by appending requested name to /api prefix
+                    url:  'https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='+t.values.startLocation.name,
+                    error: function(xhr, status, err) {
+                        //TODO
+                        console.log(err);
+                    },
+                    success: function(res) {
+                        var pages = res.query.pages;
+                        var key = Object.keys(pages)[0];
+                        startort_wikipedia = res.query.pages[key].extract;
+                    }
+                }).then(function () {
+                    document.getElementById('zielort' + t.id).innerHTML = "Wikipedia <a href='https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='" + t.values.startLocation.name+ "'>(source)</a>: <br>" + startlocation_wikipedia;
+                });
+
 });
-
-
-
-
-
 
 
 L.DrawToolbar.include({
@@ -405,6 +449,10 @@ function showExternalFile() {
   });
 }
 
+
+/*$(document).ready(function() {
+
+}*/
 /**
  * provide the objects drawn using the Leaflet.draw plugin as a GeoJSON to download
  */
@@ -522,7 +570,56 @@ function routeToLineString(route) {
 		};
 }
 
+//remove popups
+function clearPopup(){
+  popupMarker.clearLayers(popupMarker);
+  }
 
+  function readGeoJSONFromTA() {
+      return JSON.parse($('textarea#geojson-area')[0].value);
+  }
+
+  /**
+   *@desc add and load the read GeoJSON on the map
+   */
+  function loadGeoJSON() {
+      var feat = readGeoJSONFromTA();
+      console.dir(feat);
+      var gLayer = L.geoJson(feat);
+      console.dir(gLayer);
+      gLayer.addTo(visualizationLayers);
+
+  }
+
+
+/**
+ * @desc main function;
+ *      reads txt input into a string (filecontent) and extracts the coordinates
+ * @see Learnweb
+ * @param event OpenFile event
+ */
+var ReadFile = function(event) {
+
+    var input = event.target;
+    var reader = new FileReader();
+    const output = [];
+    var array;
+
+    // Empty List after new fileupload to avoid very long lists without refresh
+
+
+    reader.onload = function () {
+        var fileContent = reader.result;
+        //Call Geojson build function
+        var gLayer = L.geoJson(JSON.parse(fileContent));
+        console.dir(gLayer);
+        gLayer.addTo(visualizationLayers);
+        //logs whether the whole script runs
+    };
+
+
+    reader.readAsText(input.files[0]);
+};
 // Code taken from http://www.liedman.net/leaflet-routing-machine/tutorials/interaction/
 function createButton(label, container) {
     var btn = L.DomUtil.create('button', '', container);

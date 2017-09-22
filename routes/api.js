@@ -3,7 +3,7 @@ var router = express.Router();
 var monk = require('monk');
 var db = monk('localhost:27017/Abschlussaufgabe');
 
-//save marker
+//save parking lot
 router.post('/save/parklot/', function(req, res, next) {
 
     // Set collection

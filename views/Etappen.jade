@@ -43,7 +43,7 @@ html
               li.active(role='presentation')
                 a(href='Etappen') Etappen
               li(role='presentation')
-                a(href='marker') Marker
+                a(href='parkzusch') Parkplätze/Zuschauerplätze
 
 
             br
@@ -56,12 +56,13 @@ html
             form.form-inline(onsubmit='event.preventDefault(); showExternalFile();')
               input#externalfile.form-control(type='text', name='externalfile', placeholder='URL zu ext. GeoJSON-Datei')
               input.btn.btn-default(type='submit', value='Auf Karte laden')
+
             br
             button.btn.btn-default(onclick='showLocation()') Meine Position anzeigen
             br
             br
             form.form-inline(id='saveEtappe' action='/api/save/etappe/' method='POST')
-              input#name.form-control(type='text', name='name', placeholder='Name der Etappe')
+              input#name.form-control(type='text', name='etappenname', placeholder='Name der Etappe')
               input.btn-default(type='submit', value='Etappe in Datenbank speichern')
             br
             form.form-inline(id='loadEtappe' action='/api/load/etappe/' method='GET')
@@ -73,9 +74,27 @@ html
               input#btnid.btn.btn-default(type='submit', value='Parkplatz aus Datenbank laden')
             br
             form.form-inline(id='saveParkplatz' action='/api/save/parklot/' method='POST')
-              input#name.form-control(type='text', name='name', placeholder='Name des Parkplatzes')
+              input#parkname.form-control(type='text', name='parkname', placeholder='Name des Parkplatzes')
               input.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze in Datenbank speichern')
             br
+
             br
-            button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Routen
+            button.btn.btn-default(onclick='clearPopup()') Lösche alle Popups
             br
+
+            #wikistart.panel.panel-default
+                                   .panel-heading
+                                       a.text-muted(data-toggle='collapse' data-target='#collapse4' id = "startort")
+                                           span.glyphicon.glyphicon-education
+                                               | Der Wikipedia Eintrag zum Startort & Zielort der geladenen Etappe
+
+                                   #collapse4.panel-body.panel-collapse.collapse.out
+                                       span
+
+                               #pictures.panel.panel-default
+                                   .panel-heading
+                                       a.text-muted
+                                           span.glyphicon.glyphicon-picture
+                                               |               Die Bilder der Etappe
+                                   .panel-body.panel-collapse.collapse.in
+                                          img(id='pic' src='', alt='Das Bild aus der Datenbank sollte hier geladen sein' height="320px" width="42px")
