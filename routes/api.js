@@ -56,8 +56,6 @@ router.get('/load/parklot/:name/', function(req, res, next) {
 });
 /* POST Geojson to be saved to database. */
 router.post('/save/etappe/', function(req, res, next) {
-  console.log("IM POSTING");
-
     // Set collection
     var jsoncollection = db.get('jsoncollection');
     //res.setHeader('Content-type', 'application/json');

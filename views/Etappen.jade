@@ -72,7 +72,10 @@ html
               input#loadname.form-control(type='text', name='parkname', placeholder = loadParkplatz)
               input#btnid.btn.btn-default(type='submit', value='Parkplatz aus Datenbank laden')
             br
-
+            form.form-inline(id='saveParkplatz' action='/api/save/parklot/' method='POST')
+              input#name.form-control(type='text', name='name', placeholder='Name des Parkplatzes')
+              input.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze in Datenbank speichern')
+            br
             br
             button.btn.btn-default(onclick='clearVisualizationLayer()') Lösche alle visualisierten Routen
             br

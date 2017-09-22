@@ -47,103 +47,75 @@ function initMap() {
 
 
 */
-
-
-/*L.easyButton('fa-level-up',
-    function() {
-
-        var routing = L.Routing.control({
-            plan: L.Routing.plan([
-                L.latLng(50.07132, 35.14103),
-                L.latLng(50.05459, 35.18239)
-            ], {
-                waypointIcon: function(i) {
-                    return new L.Icon.Label.Default({
-                        labelText: String.fromCharCode(65 + i)
-                    });
-                },
-                geocoder: L.Control.Geocoder.nominatim()
-            }),
-            routeWhileDragging: true,
-            routeDragTimeout: 250
-        });
-
-var rlayer = L.layerGroup([routing]);
-map.hasLayer(rlayer) ? map.removeLayer(rlayer) : map.addLayer(rlayer);
-
-},
-    'Display Route').addTo(map);
-*/
-
-
-  popupMarker = new L.featureGroup();
-  map.addLayer(popupMarker);
-
-
-  map.on('click', function(e){
-    var markerOnMap = e.latlng;
-    var text = '<form class="meineForm" id="saveParkplatz" action="/api/save/marker/" method="POST">'+
-            '<div class="form-group">'+
-            '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
-            '<input type="text" placeholder="Name vom Parkplatz" id="name" name="name" class="form-control"/>'+
-            '</div>'+
-            '<div class="form-group">'+
-            '<label class="control-label col-sm-5"><strong>Art: </strong></label>'+
-            '<select class="form-control" id="art" name="art">'+
-            '<option value="Parkplatz">Parkplatz</option>'+
-            '<option value="Zuschauer">Zuschauerplatz</option>'+
-            '</select>'+
-            '</div>'+
-            '<div class="form-group">'+
-            '<label class="control-label col-sm-5"><strong>Kapazität: </strong></label>'+
-            '<input type="number" min="0" class="form-control" id="cap" name="cap">'+
-            '</div>'+
-            //...
-            '<div class="form-group">'+
-            '<label class="control-label col-sm-5"><strong>Description: </strong></label>'+
-            '<textarea class="form-control" rows="6" id="info" name="info">...</textarea>'+
-            '</div>'+
-            '<div class="form-group">'+
-            '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Marker speichern</button></div>'+              '</div>'+
-            '</form>';
-    var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
-                      iconSize: [30, 21]
-
-                  });
-    marker = new L.marker(markerOnMap, {icon: parkIcon}).addTo(popupMarker).bindPopup(text).openPopup();
-    marker.on('popupclose', function (e) {
-                marker.remove();
-            });
-
-    // overwrite submit handler for form used to save to Database
-
-    $('#saveParkplatz').submit(function(e) {
-      e.preventDefault();
-      marker.closePopup();
-      marker.addTo(map);
-      if (currentRoute){
-        // Append hidden field with actual GeoJSON structure
-        var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(text) + "'>");
-        $(this).append(inputRoute);
-        var that = this;
-
-        // submit via ajax
-        $.ajax({
-          data: $(that).serialize(),
-          type: $(that).attr('method'),
-          url:  $(that).attr('action'),
-          error: function(xhr, status, err) {
-            console.log("Error while saving Route to Database");
-          },
-          success: function(res) {
-            console.log("Route with the name '" + that.elements.name.value + "' saved to Database.");
-          }
-        });
-        inputRoute.remove();
-        return false;
-      }
-    });
+var router = L.routing.osrmv1();
+  var wps = [];
+//Adds routes as layers
+map.on('click', function(e) {
+    wps.push(new L.Routing.Waypoint(e.latlng));
+    if (wps.length % 2 === 0) {
+      router.route(wps.slice(wps.length - 2, wps.length), function(err, routes) {
+        if (err) {
+          return console.error(err);
+        }
+        currentRoute = L.routing.line(routes[0]).addTo(routeLayer).addTo(map);
+      });
+    }
   });
+var overlays = {
+  "Etappen": routeLayer
+}
+L.control.layers(baselayers, overlays).addTo(map);
+
+
+
+
+
+  });
+
+  map.on(L.Draw.Event.CREATED, function (e) {
+
+      var popupContent = '<form class="saveParkplatz" id="saveParkplatz" action="/api/save/parklot/" method="POST">'+
+          '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
+          '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
+          '</div>'+
+          '<div class="form-group">'+
+          '</div>'+
+          '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Kapazität: </strong></label>'+
+          '<input type="number" min="0" class="form-control" id="cap" name="cap">'+
+          '</div>'+
+          //...
+          '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Description: </strong></label>'+
+          '<textarea class="form-control" rows="6" id="info" name="info">...</textarea>'+
+          '</div>'+
+          '<div class="form-group">'+
+          '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Marker speichern</button></div>'+              '</div>'+
+          '</form>';
+
+      var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
+                            iconSize: [30, 21]});
+      var type = e.layerType,
+          layer = e.layer;
+                var popup = L.popup({Width:1000
+                    })
+                    .setContent(popupContent)
+                    .setLatLng(layer.getLatLng())
+      //add the marker to a layer
+      editableLayers.addLayer(layer);
+      marker = new L.marker(layer.getLatLng(), {icon: parkIcon}).addTo(map).bindPopup(popup).openPopup();
+      marker.on('popupclose', function (e) {
+                  marker.remove();
+              });
+
+             });
+
+
+
+
+
+
 
 
 
@@ -195,7 +167,7 @@ map.hasLayer(rlayer) ? map.removeLayer(rlayer) : map.addLayer(rlayer);
   };
 
 
-}
+
 
 
 
@@ -228,28 +200,7 @@ function showExternalFile() {
   });
 }
 
-/**
- * provide the objects drawn using the Leaflet.draw plugin as a GeoJSON to download
- */
-/*function exportDrawing() {
-  // fake a link
-  var anchor = document.createElement('a');
-  // encode geojson as the link's contents
-  anchor.href = 'data:application/vnd.geo+json,' + encodeURIComponent(JSON.stringify(editableLayers.toGeoJSON()));
-  anchor.target = '_blank';
-  // give it a nice file name
-  anchor.download = "your-drawing.geojson";
-  // add to document (Firefox needs that)
-  document.body.appendChild(anchor);
-  // fake a click on the link -> file will be offered for download
-  anchor.click();
-  // remove that element again as if nothing happened
-  document.body.removeChild(anchor);
-}
-*/
-/**
- * add resizing capability (curtesy of several StackExchange users)
- */
+
 function initUI() {
   var resize= $("#content");
   var containerWidth = $("body").width();
@@ -276,85 +227,7 @@ function initUI() {
   });
 }
 
-// Overwrite HTML Form handlers once document is created.
-$(document).ready(function() {
 
-
-
-  // submit handler for forms used to load from Database
-  $('#loadParklot').submit(function(e) {
-    // Prevent default html form handling
-    e.preventDefault();
-    var that = this;
-
-    // submit via ajax
-    $.ajax({
-      // catch custom response code.
-      statusCode: {
-        404: function() {
-        alert("Route with the name '" + that.elements.loadname.value + "' is not present in the Database.");
-        }
-      },
-      data: '',
-      type: $(that).attr('method'),
-      // Dynamically create Request URL by appending requested name to /api prefix
-      url:  $(that).attr('action') + that.elements.loadname.value,
-      error: function(xhr, status, err) {
-      },
-      success: function(res) {
-        var route = JSON.parse(res[0].route);
-        routeControl.setWaypoints(route.waypoints).addTo(map);
-        console.log("Route '" + that.elements.loadname.value + "' successfully loaded.");
-      }
-    });
-    return false;
-  });
-
-
-  if ((document.getElementById('loadname')).value != ""){
-    document.getElementById('btnid').click();
-  }
-});
-
-
-// Credit to https://github.com/perliedman/leaflet-routing-machine/blob/344ff09c8bb94d4e42fa583286d95396d8227c65/src/L.Routing.js
-function RouteToGeoJSON(route){
-		var wpNames = [],
-			wpCoordinates = [],
-			i,
-			wp,
-			latLng;
-
-		for (i = 0; i < route.waypoints.length; i++) {
-			wp = route.waypoints[i];
-			latLng = L.latLng(wp.latLng);
-			wpNames.push(wp.name);
-			wpCoordinates.push([latLng.lng, latLng.lat]);
-		}
-		return {
-			type: 'FeatureCollection',
-			features: [
-				{
-					type: 'Feature',
-					properties: {
-						id: 'waypoints',
-						names: wpNames
-					},
-					geometry: {
-						type: 'MultiPoint',
-						coordinates: wpCoordinates
-					}
-				},
-				{
-					type: 'Feature',
-					properties: {
-						id: 'line',
-					},
-					geometry: routeToLineString(route)
-				}
-			]
-		};
-}
 
 // Credits to https://github.com/perliedman/leaflet-routing-machine/blob/344ff09c8bb94d4e42fa583286d95396d8227c65/src/L.Routing.js
 function routeToLineString(route) {

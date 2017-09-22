@@ -28,6 +28,8 @@ router.get('/Etappen/:id/', function(req, res, next) {
   res.render('Etappen', {loadParkplatz: req.params.id});
 });
 
-
+router.get('/marker/', function(req, res, next) {
+  res.render('marker', {});
+});
 
 module.exports = router;
