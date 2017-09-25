@@ -9,7 +9,7 @@
 var map, contObj,etappenlayer, inputRoute, oblat, oblon,  city, routes, popupMarker, marker, waypoints, cacheSave, layercontrol, editableLayers,routeLayer, vLayers, drawControl, routeControl, routeSwitch, currentRoute;
 var lots = [];
 /**
- * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
+ * initializes map
  */
 function initMap(){
 etappenlayer = L.layerGroup();
@@ -211,6 +211,7 @@ map.addLayer(vLayers);
                             '<label>'+ that.elements.etappenname.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12">Start:</label>'
                             + '<label>'+ that.elements.start.value +'</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"> Ende:</label>'
                             + '<label>'+ that.elements.end.value + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Website: </strong></label>'
+                            + '<div style="text-align:center;" class="col-xs-4"><button id="nextlot" type="submit" value="nextlot" onclick="calcNearest()" class="btn btn-success trigger-submit">Find nearest Parking Lot </button></div>'
 
                               console.log(marker);
                             popsta.bindPopup(etContent);
@@ -229,10 +230,8 @@ map.addLayer(vLayers);
 
         });
 
-  /** When an object ( e.g. marker ) is moved onto the map this event will trigger
-   *  Popup with our own content will show up and the user can fill in the information
-   *  that wants to be stored
-   */
+  // Popup will open and you can fill in a form and save it to database
+
   map.on(L.Draw.Event.CREATED, function (e) {
 
     var popupContent = '<form class="saveObject" id="saveObject" action="/api/save/object/" method="POST">'+
@@ -321,7 +320,7 @@ map.addLayer(vLayers);
                     '<label>' + marker.getLatLng() + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Art:</strong></label>'
                     + '<label>' + that.elements.art.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Kapazität:</strong></label>'
                     + '<label>' + that.elements.capacity.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Weitere Informationen:</strong></label>'
-                    + '<label>' + that.elements.info.value + '</label>' + '</div>' + '<div style="text-align:center;" class="col-xs-4"><button id="nextlot" type="submit" value="nextlot" onclick="calcNearest()" class="btn btn-success trigger-submit">Find nearest Parking Lot </button></div>'
+                    + '<label>' + that.elements.info.value + '</label>' + '</div>' + '<div style="text-align:center;" class="col-xs-4"><button id="nearestLot" type="submit" value="nextlot" onclick="calcNearest()" class="btn btn-success trigger-submit">Find nearest Parking Lot </button></div>'
 
                       lots.push(new L.LatLng(oblat,oblon));
                     }
@@ -362,12 +361,13 @@ $(document).ready(function() {
         var route = JSON.parse(res[0].route);
         city = res[0].name;
         getwiki();
-        var acutLayer = L.featureGroup();
+        var acutLayer = new L.featureGroup();
+        var nlayer = new L.featureGroup();
 
-        L.RouteToGeoJSON(route).addTo(acutLayer);
+        L.RouteToGeoJSON(route).addTo(vLayer).addTo(acutLayer);
         routeControl.setWaypoints(route.waypoints).addTo(map);
         console.log("Route '" + that.elements.etappenname.value + "' successfully loaded.");
-        acutLayer.addTo(etappenlayer).addTo(map);
+        acutLayer.addTo(etappenlayer).addOverlay(nlayer);
       }
     });
 
@@ -477,7 +477,7 @@ function getwiki(){
 
 }
 
-
+//Toolbar to drag in Parking lots or visitor places
 L.DrawToolbar.include({
     getModeHandlers: function(map) {
         return [
