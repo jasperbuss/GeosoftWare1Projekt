@@ -6,13 +6,16 @@
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, contObj, inputRoute, oblat, oblon,  city, routes, popupMarker, marker, waypoints, cacheSave, layercontrol, editableLayers,routeLayer, vLayers, drawControl, routeControl, routeSwitch, currentRoute;
-
+var map, contObj,etappenlayer, inputRoute, oblat, oblon,  city, routes, popupMarker, marker, waypoints, cacheSave, layercontrol, editableLayers,routeLayer, vLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var lots = [];
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
  */
 function initMap(){
-
+etappenlayer = L.layerGroup();
+var overlayLayers = {
+"Etappenlayer": etappenlayer
+};
 var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 osmAttrib = '&copy; ' + osmLink + ' Contributors';
 var osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>',
@@ -33,6 +36,9 @@ L.control.zoom({
 var baselayers = {
 "OSM Mapnik": osmMap
 };
+
+L.control.layers(baselayers, overlayLayers).addTo(map);
+
 // add standard OSM tiles as basemap
 /*layercontrol.addBaseLayer(L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -55,9 +61,9 @@ map.on('click', function(e) {
     });
   var overlays = {
     "Etappen": routeLayer
-  }
-L.control.layers(baselayers, overlays).addTo(map);
-*/
+  }*/
+//
+
 
 
 // add controls to map
@@ -65,12 +71,12 @@ L.control.layers(baselayers, overlays).addTo(map);
 
 // Setup Routing Plugin
 routeControl = L.Routing.control({
-  serviceUrl: "http://10.67.60.199:500/route/v1",
+  serviceUrl: "http://10.67.60.199:5000/route/v1",
   waypoints: [
       null
   ],
   routeWhileDragging: true,
-  show:false,
+  show:true,
   createMarker: function() { return null; },
     position: 'topleft',
     lineOptions: {
@@ -173,8 +179,8 @@ map.addLayer(vLayers);
 
                var kooSta = new L.LatLng(waypoints[0].latLng.lat,waypoints[0].latLng.lng);
                var kooEnd = new L.LatLng(waypoints[1].latLng.lat,waypoints[1].latLng.lng);
-               var popsta = L.marker(kooSta, {icon: parkIcon}).addTo(vLayers);
-               var popend = L.marker(kooEnd, {icon: parkIcon}).addTo(vLayers);
+               var popsta = L.marker(kooSta).addTo(vLayers);
+               var popend = L.marker(kooEnd).addTo(vLayers);
                popsta.bindPopup(EtaContent).openPopup().addTo(map);
 
                $('#saveEtappe').submit(function(e) {
@@ -200,15 +206,17 @@ map.addLayer(vLayers);
                    inputRoute.remove();
                    map.closePopup();
 
+
                    var etContent='<div class="form-group">' +'<label class="control-label col-sm-12 "><strong>Etappenname: </strong></label>' +
-                            '<label>'+ that.elements.name.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong>Start: </strong></label>'
-                            + '<label>'+ that.elements.start.value +'</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Ende: </strong></label>'
+                            '<label>'+ that.elements.etappenname.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12">Start:</label>'
+                            + '<label>'+ that.elements.start.value +'</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"> Ende:</label>'
                             + '<label>'+ that.elements.end.value + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Website: </strong></label>'
-                            + '<label>'+ that.elements.website.value +'</label>' + '</div>'+'</div>'+ '<div style="text-align:center;" class="col-xs-4"><button id="nextlot" type="submit" value="nextlot" onclick="nextlot()" class="btn btn-success trigger-submit">Nächster Parkplatz </button></div>';
+
+                              console.log(marker);
                             popsta.bindPopup(etContent);
                             popend.bindPopup(etContent)
-
                             return false;
+
 
                         }
 
@@ -229,19 +237,19 @@ map.addLayer(vLayers);
 
     var popupContent = '<form class="saveObject" id="saveObject" action="/api/save/object/" method="POST">'+
           '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
+          '<label class="control-label col-sm-5">Name: </label>'+
           '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
           '</div>'+
           '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Art: </strong></label>'+
-          '<select class="form-control" id="art" name="type">'+
+          '<label class="control-label col-sm-5">Art: </label>'+
+          '<select class="form-control" id="art" name="art">'+
           '<option value="Parklot">Parking Lot</option>'+
           '<option value="Visitors">Visitors Place</option>'+
           '</select>'+
           '</div>'+
           '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Capacity: </strong></label>'+
-          '<input  min="0" class="form-control" id="cap" name="cap">'+
+          '<label class="control-label col-sm-5">Capacity:</label>'+
+          '<input  min="0" class="form-control" id="capacity" name="capacity">'+
           '</div>'+
           //...
           '<div class="form-group">'+
@@ -249,7 +257,7 @@ map.addLayer(vLayers);
           '<textarea class="form-control" rows="6" id="info" name="info">...</textarea>'+
           '</div>'+
           '<div class="form-group">'+
-          '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-success trigger-submit">Marker speichern</button></div>'+              '</div>'+
+          '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-success trigger-submit">save Object</button></div>'+'</div>'+
           '</form>';
 
       var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
@@ -264,9 +272,9 @@ map.addLayer(vLayers);
       //add the marker to a layer
       editableLayers.addLayer(layer);
       marker = new L.marker(layer.getLatLng(), {icon: parkIcon}).addTo(map).bindPopup(popup).openPopup();
-      marker.on('popupclose', function (e) {
-                  marker.remove();
-              });
+  //    marker.on('popupclose', function (e) {
+    //              marker.remove();
+    //          });
 
               $('#saveObject').submit(function(e) {
 
@@ -287,33 +295,35 @@ map.addLayer(vLayers);
                       console.log("Error while saving Etappe to Database");
                     },
                     success: function(res) {
-                      console.log("Object with the name '" + that.elements.parkname.value + " saved to Database.");
+                      console.log("Object with the name '" + that.elements.name.value + " saved to Database.");
                     }
                   });
                   inputGeo.remove();
-                  map.closePopup();
+                  map.closePopup()
 
-                  oblat = oblat.getLatLng().lat;
-                  oblon = oblon.getLatLng().lng;
+                  oblat = marker.getLatLng().lat;
+                  oblon = marker.getLatLng().lng;
 
 
-                  if(that.element.type.value == "Parklot")  {
+                  if(that.elements.art.value == "Parklot")  {
                     contObj = '<div class="form-group">' + '<label class="control-label col-sm-12 "><strong>Name: </strong></label>' +
                     '<label>' + marker.getLatLng() + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Art:</strong></label>'
-                    + '<label>' + that.elements.type.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Kapazität:</strong></label>'
-                    + '<label>' + that.elements.cap.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Weitere Informationen:</strong></label>'
+                    + '<label>' + that.elements.art.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"> Kapazität:</label>'
+                    + '<label>' + that.elements.name.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"> Name:</label>'
+                    + '<label>' + that.elements.capacity.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Weitere Informationen:</strong></label>'
                     + '<label>' + that.elements.info.value + '</label>' + '</div>'
 
-                     lots.push(new L.LatLng(oblat,oblng));
+                     lots.push(new L.LatLng(oblat,oblon));
+                     var upPop = marker.bindPopup(contObj);
                     }
                     else{
                       contObj = '<div class="form-group">' + '<label class="control-label col-sm-12 "><strong>Name: </strong></label>' +
                     '<label>' + marker.getLatLng() + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Art:</strong></label>'
-                    + '<label>' + that.elements.type.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Kapazität:</strong></label>'
-                    + '<label>' + that.elements.cap.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Weitere Informationen:</strong></label>'
-                    + '<label>' + that.elements.info.value + '</label>' + '</div>' + '<div style="text-align:center;" class="col-xs-4"><button id="nextlot" type="submit" value="nextlot" onclick="nextlot()" class="btn btn-success trigger-submit">Find nearest Parking Lot </button></div>'
+                    + '<label>' + that.elements.art.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Kapazität:</strong></label>'
+                    + '<label>' + that.elements.capacity.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Weitere Informationen:</strong></label>'
+                    + '<label>' + that.elements.info.value + '</label>' + '</div>' + '<div style="text-align:center;" class="col-xs-4"><button id="nextlot" type="submit" value="nextlot" onclick="calcNearest()" class="btn btn-success trigger-submit">Find nearest Parking Lot </button></div>'
 
-
+                      lots.push(new L.LatLng(oblat,oblon));
                     }
 
                     var upPop = marker.bindPopup(contObj);
@@ -352,14 +362,18 @@ $(document).ready(function() {
         var route = JSON.parse(res[0].route);
         city = res[0].name;
         getwiki();
+        var acutLayer = L.featureGroup();
 
+        L.RouteToGeoJSON(route).addTo(acutLayer);
         routeControl.setWaypoints(route.waypoints).addTo(map);
         console.log("Route '" + that.elements.etappenname.value + "' successfully loaded.");
+        acutLayer.addTo(etappenlayer).addTo(map);
       }
     });
 
     return false;
   });
+
   if ((document.getElementById('etname')).value != ""){
     document.getElementById('butnid').click();
   }
@@ -376,19 +390,19 @@ $('#loadParkplatz').submit(function(e) {
     // catch custom response code.
     statusCode: {
       404: function() {
-      alert("Etappe with the name '" + that.elements.parkname.value + "' is not present in the Database.");
+      alert("Etappe with the name '" + that.elements.name.value + "' is not present in the Database.");
       }
     },
     data: '',
     type: $(that).attr('method'),
     // Dynamically create Request URL by appending requested name to /api prefix
-    url:  $(that).attr('action') + that.elements.parkname.value,
+    url:  $(that).attr('action') + that.elements.name.value,
     error: function(xhr, status, err) {
     },
     success: function(res) {
       var route = JSON.parse(res[0].route);
       routeControl.setWaypoints(route.waypoints).addTo(map);
-      console.log("Parkplatz " + that.elements.parkname.value + "' successfully loaded.");
+      console.log("Parkplatz " + that.elements.name.value + "' successfully loaded.");
     }
   });
   return false;
@@ -399,6 +413,41 @@ if ((document.getElementById('loadname')).value != ""){
 
 });
 
+function calcDistance(targetPoint, points){
+
+  var distance  = turf.distance(targetPoint, points);
+
+  return distance;
+
+}
+
+
+
+//
+function calcNearest(){
+
+  var vzs = new L.LatLng(oblat, oblon); //visitor, start, ziel
+
+  var tiniestDist = 9007199254740992;
+
+  for (var i = 0; i<lots.length; i++){
+  if
+  (calcDistance([vzs.lat,vzs.lng], [lots[i].lat, lots[i].lng]) < tiniestDist){
+
+
+    tiniestDist = calcDistance([vzs.lat,vzs.lng],[lots[i].lat,lots[i].lng]);
+
+    var nearestLot = lots[i];
+
+    console.log("Nearest lot at " + [nearestLot.lat,nearestLot.lon]);
+      }
+
+    }
+
+}
+
+
+// code taken from: http://www.9bitstudios.com/2014/03/getting-data-from-the-wikipedia-api-using-jquery/
 function getwiki(){
   $.ajax({
     type: "GET",
@@ -445,22 +494,7 @@ L.DrawToolbar.include({
 
 
 
-/**
- * get user's location via geolocation web api and display it on the map
- */
-function showLocation() {
 
-  if(navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      // marker of current position
-      L.marker([position.coords.latitude, position.coords.longitude], {title: 'Ihre Position'}).bindPopup('Ihre Position').addTo(map);
-      // accuracy radius (95% confidence)
-      L.circle([position.coords.latitude, position.coords.longitude], position.coords.accuracy, {fill: 'lightblue', color: 'blue'}).addTo(map);
-    });
-  } else {
-      alert("Ihr Gerät oder Browser unterstützt die Standortbestimmung leider nicht :(");
-  }
-}
 
 /**
  * load external GeoJSON file via Ajax (Caution! Server to load from has to allow cross origin requests!)

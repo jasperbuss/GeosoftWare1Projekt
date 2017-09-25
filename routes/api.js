@@ -13,8 +13,8 @@ router.post('/save/object/', function(req, res, next) {
     jsoncollection  .insert({
         "geometry" : req.body.geometry,
         "name" : req.body.name,
-        "art" : req.body.art,
-        "cap":req.body.cap,
+        "type" : req.body.type,
+        "capacity":req.body.capacity,
         "info":req.body.info
 
     }, function (err, doc) {

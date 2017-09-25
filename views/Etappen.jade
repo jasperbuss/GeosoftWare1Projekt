@@ -30,24 +30,23 @@ html
         // turf script
         script(src = '/javascripts/turf.min.js')
         script(src = '/javascripts/turf.js')
+        script(src = '/javascripts/Location.js')
 
 
         // app code
         script(src='/javascripts/etappen.js')
       body
-        .container-fluid
+        .container-pills
           .col-md-12
-            h1 Web-App
+            h1 La-Vuelta
             p Geosoftware I, SoSe 2017, Abschlussaufgabe
-            ul.nav.nav-tabs
+            ul.nav.nav-tabs.nav-justified
               li(role='presentation')
                 a(href='/') Start
               li(role='presentation')
                 a(href='impressum') Impressum
               li.active(role='presentation')
                 a(href='Etappen') Etappen
-              li(role='presentation')
-                a(href='parkzusch') Parkplätze/Zuschauerplätze
 
 
             br
@@ -62,7 +61,8 @@ html
               input.btn.btn-default(type='submit', value='Auf Karte laden')
 
             br
-            button.btn.btn-default(onclick='showLocation()') Meine Position anzeigen
+            button.btn(onclick='showLocation()') Meine Position anzeigen
+            br
             br
             form.form-inline(id='loadEtappe' action='/api/load/etappe/' method='GET')
               input#etname.form-control(type='text', name='etappenname', placeholder=loadEtappe)
@@ -76,19 +76,19 @@ html
             button.btn.btn-default(onclick='clearPopup()') Lösche alle Popups
             br
 
-            #wikistart.panel.panel-default
+            #wikistart.panel
                                    .panel-heading
                                        a.text-muted(data-toggle='collapse' data-target='#collapse4' id = "startort")
                                            span.glyphicon.glyphicon-education
-                                               | Der Wikipedia Eintrag zum Startort & Zielort der geladenen Etappe
+                                               | Der erste Absatz des Wikipedia-Eintrags zum Startort und Zielort der Etappen
 
                                    #collapse4.panel-body.panel-collapse.collapse.out
                                        span
 
-                               #pictures.panel.panel-default
+                               #pictures.panel
                                    .panel-heading
                                        a.text-muted
                                            span.glyphicon.glyphicon-picture
-                                               |               Die Bilder der Etappe
+                                               |               Bilder zu den Etappen
                                    .panel-body.panel-collapse.collapse.in
-                                          img(id='pic' src='', alt='Das Bild aus der Datenbank sollte hier geladen sein' height="320px" width="42px")
+                                          img(id='pic' src='', alt='Hier werden Bilder angezeigt' height="320px" width="42px")
