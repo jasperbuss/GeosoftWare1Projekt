@@ -491,11 +491,6 @@ L.DrawToolbar.include({
     }
 });
 
-
-
-
-
-
 /**
  * load external GeoJSON file via Ajax (Caution! Server to load from has to allow cross origin requests!)
  */
@@ -506,28 +501,6 @@ function showExternalFile() {
 }
 
 
-/*$(document).ready(function() {
-
-}*/
-/**
- * provide the objects drawn using the Leaflet.draw plugin as a GeoJSON to download
- */
-/*function exportDrawing() {
-  // fake a link
-  var anchor = document.createElement('a');
-  // encode geojson as the link's contents
-  anchor.href = 'data:application/vnd.geo+json,' + encodeURIComponent(JSON.stringify(editableLayers.toGeoJSON()));
-  anchor.target = '_blank';
-  // give it a nice file name
-  anchor.download = "your-drawing.geojson";
-  // add to document (Firefox needs that)
-  document.body.appendChild(anchor);
-  // fake a click on the link -> file will be offered for download
-  anchor.click();
-  // remove that element again as if nothing happened
-  document.body.removeChild(anchor);
-}
-*/
 /**
  * add resizing capability (curtesy of several StackExchange users)
  */
@@ -635,9 +608,7 @@ function clearPopup(){
       return JSON.parse($('textarea#geojson-area')[0].value);
   }
 
-  /**
-   *@desc add and load the read GeoJSON on the map
-   */
+//reads in geoJson
   function loadGeoJSON() {
       var feat = readGeoJSONFromTA();
       console.dir(feat);
