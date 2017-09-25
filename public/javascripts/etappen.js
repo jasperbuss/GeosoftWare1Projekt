@@ -1,12 +1,12 @@
 /**
  * Abschlussaufgabe, Geosoftware 1
- * @author Jasper Buß
+ * @author Jasper Buß, 430423
  */
 
 'use strict';
 
 // global variables for Leaflet stuff, very handy
-var map, routes,popupMarker, marker,waypoints,cacheSave, layercontrol, editableLayers,routeLayer, visualizationLayers, drawControl, routeControl, routeSwitch, currentRoute;
+var map, contObj, inputRoute, oblat, oblon,  city, routes, popupMarker, marker, waypoints, cacheSave, layercontrol, editableLayers,routeLayer, vLayers, drawControl, routeControl, routeSwitch, currentRoute;
 
 /**
  * initialises map (add basemaps, show Münster, setup draw plugin, show GEO1 marker)
@@ -39,7 +39,7 @@ var baselayers = {
 }).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
 */
 
-/*   var router = L.routing.osrmv1();
+  /* var router = L.routing.osrmv1();
     var wps = [];
 //Adds routes as layers
 map.on('click', function(e) {
@@ -57,14 +57,15 @@ map.on('click', function(e) {
     "Etappen": routeLayer
   }
 L.control.layers(baselayers, overlays).addTo(map);
-
 */
+
 
 // add controls to map
 
 
 // Setup Routing Plugin
 routeControl = L.Routing.control({
+  serviceUrl: "http://10.67.60.199:500/route/v1",
   waypoints: [
       null
   ],
@@ -88,8 +89,8 @@ popupMarker = new L.FeatureGroup();
 map.addLayer(popupMarker);
 
   // layer to draw on
-visualizationLayers = new L.FeatureGroup();
-map.addLayer(visualizationLayers);
+vLayers = new L.FeatureGroup();
+map.addLayer(vLayers);
 
   // add controls to map
   routeControl.on('routeselected', function(e) {
@@ -113,8 +114,8 @@ map.addLayer(visualizationLayers);
   };
   // setup Leaflet.draw plugin
   // layer to draw on
-  visualizationLayers = new L.FeatureGroup();
-  //map.addLayer(visualizationLayers);
+  vLayers = new L.FeatureGroup();
+  map.addLayer(vLayers);
 
   // add controls to map
   drawControl = new L.Control.Draw(options);
@@ -139,14 +140,14 @@ map.addLayer(visualizationLayers);
            });
            L.DomEvent.on(destBtn, 'click', function() {
 
-               var popupStartcontent = '<form  id="saveEtappe" action="/api/save/etappe/" method="POST">'+
+               var EtaContent = '<form  id="saveEtappe" action="/api/save/etappe/" method="POST">'+
                    '<div class="form-group">'+
                    '<label class="control-label col-sm-5"><strong>Etappenname: </strong></label>'+
                    '<input type="text" placeholder="Required" id="etappenname" name="etappenname" class="form-control"/>'+
                    '</div>'+
                    '<div class="form-group">'+
-                   '<label id="starttermin" class="control-label col-sm-2"><strong>Starttermin: </strong></label>'+
-                   '<input type="date"  class="form-control" id="start" name="start">'+'<label id="startort" class="control-label col-sm-2"><strong>Startort: </strong></label>'+
+                   '<label id="starttermin" class="control-label col-sm-2"><strong>Startdate: </strong></label>'+
+                   '<input type="date"  class="form-control" id="start" name="start">'+'<label id="starting place" class="control-label col-sm-2"><strong>Starting place: </strong></label>'+
                    '<input type="text"  class="form-control" id="startort" name="startort">'+
                    '</div>'+
                    '<div class="form-group">'+
@@ -154,19 +155,6 @@ map.addLayer(visualizationLayers);
                    '<input type="date"  class="form-control" id="end" name="end">'+'<label id="zielort" class="control-label col-sm-2"><strong>Zielort: </strong></label>'+
                    '<input type="text"  class="form-control" id="zielort" name="zielort">'+
                    '</div>'+
-                   //...
-                   '<div class="form-group">'+
-                   '<label class="control-label col-sm-5"><strong>Website </strong></label>'+
-                   '<input type="text" placeholder="https://www......" id="website" name="website" class="form-control"/>'+
-                   '</div>'+
-                   '<div class="form-group">'+
-                   '<label class="control-label col-sm-7"><strong>Bild zu Start: </strong></label>'+
-                   '<input type="text" placeholder="https://www......" id="picstart" name="picstart" class="form-control"/>'+
-                   '</div>'+                    '<div class="form-group">'+
-                   '<label class="control-label col-sm-7"><strong>Bild zu Ende: </strong></label>'+
-                   '<input type="text" placeholder="https://www......" id="picende" name="picende" class="form-control"/>'+
-                   '</div>'+
-                   '<div class="form-group">'+
                    '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Etappe speichern</button></div>'+              '</div>'+
                    '</form>';
 
@@ -182,10 +170,12 @@ map.addLayer(visualizationLayers);
                routeControl.spliceWaypoints(routeControl.getWaypoints().length - 1, 1, e.latlng);
                var waypoints =  routeControl.getWaypoints();
                map.closePopup();
-               var koordinatenStart = new L.LatLng(waypoints[0].latLng.lat,waypoints[0].latLng.lng);
-               var popupStart = L.marker(koordinatenStart, {icon: parkIcon}).addTo(map);
-               popupStart.bindPopup(popupStartcontent).openPopup();
 
+               var kooSta = new L.LatLng(waypoints[0].latLng.lat,waypoints[0].latLng.lng);
+               var kooEnd = new L.LatLng(waypoints[1].latLng.lat,waypoints[1].latLng.lng);
+               var popsta = L.marker(kooSta, {icon: parkIcon}).addTo(vLayers);
+               var popend = L.marker(kooEnd, {icon: parkIcon}).addTo(vLayers);
+               popsta.bindPopup(EtaContent).openPopup().addTo(map);
 
                $('#saveEtappe').submit(function(e) {
                  e.preventDefault();
@@ -209,19 +199,27 @@ map.addLayer(visualizationLayers);
                    });
                    inputRoute.remove();
                    map.closePopup();
-                   return false;
-                 }
 
-               });
+                   var etContent='<div class="form-group">' +'<label class="control-label col-sm-12 "><strong>Etappenname: </strong></label>' +
+                            '<label>'+ that.elements.name.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong>Start: </strong></label>'
+                            + '<label>'+ that.elements.start.value +'</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Ende: </strong></label>'
+                            + '<label>'+ that.elements.end.value + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Website: </strong></label>'
+                            + '<label>'+ that.elements.website.value +'</label>' + '</div>'+'</div>'+ '<div style="text-align:center;" class="col-xs-4"><button id="nextlot" type="submit" value="nextlot" onclick="nextlot()" class="btn btn-success trigger-submit">Nächster Parkplatz </button></div>';
+                            popsta.bindPopup(etContent);
+                            popend.bindPopup(etContent)
 
-           });
+                            return false;
+
+                        }
+
+                    });
+
+                });
+
+            }
 
 
-       }
-
-
-   });
-
+        });
 
   /** When an object ( e.g. marker ) is moved onto the map this event will trigger
    *  Popup with our own content will show up and the user can fill in the information
@@ -229,16 +227,21 @@ map.addLayer(visualizationLayers);
    */
   map.on(L.Draw.Event.CREATED, function (e) {
 
-      var popupContent = '<form class="saveParkplatz" id="saveParkplatz" action="/api/save/parklot/" method="POST">'+
+    var popupContent = '<form class="saveObject" id="saveObject" action="/api/save/object/" method="POST">'+
           '<div class="form-group">'+
           '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
-          '<input type="text" placeholder="Required" id="parkname" name="parkname" class="form-control"/>'+
+          '<input type="text" placeholder="Required" id="name" name="name" class="form-control"/>'+
           '</div>'+
           '<div class="form-group">'+
+          '<label class="control-label col-sm-5"><strong>Art: </strong></label>'+
+          '<select class="form-control" id="art" name="type">'+
+          '<option value="Parklot">Parking Lot</option>'+
+          '<option value="Visitors">Visitors Place</option>'+
+          '</select>'+
           '</div>'+
           '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Kapazität: </strong></label>'+
-          '<input type="number" min="0" class="form-control" id="cap" name="cap">'+
+          '<label class="control-label col-sm-5"><strong>Capacity: </strong></label>'+
+          '<input  min="0" class="form-control" id="cap" name="cap">'+
           '</div>'+
           //...
           '<div class="form-group">'+
@@ -246,17 +249,18 @@ map.addLayer(visualizationLayers);
           '<textarea class="form-control" rows="6" id="info" name="info">...</textarea>'+
           '</div>'+
           '<div class="form-group">'+
-          '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Marker speichern</button></div>'+              '</div>'+
+          '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-success trigger-submit">Marker speichern</button></div>'+              '</div>'+
           '</form>';
 
       var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
                             iconSize: [30, 21]});
       var type = e.layerType,
           layer = e.layer;
-                var popup = L.popup({Width:1000
+      var popup = L.popup({Width:1000
                     })
                     .setContent(popupContent)
-                    .setLatLng(layer.getLatLng())
+                    .setLatLng(layer.getLatLng());
+
       //add the marker to a layer
       editableLayers.addLayer(layer);
       marker = new L.marker(layer.getLatLng(), {icon: parkIcon}).addTo(map).bindPopup(popup).openPopup();
@@ -264,14 +268,14 @@ map.addLayer(visualizationLayers);
                   marker.remove();
               });
 
-              $('#saveParkplatz').submit(function(e) {
+              $('#saveObject').submit(function(e) {
 
                 e.preventDefault();
 
                 if (true){
                   // Append hidden field with actual GeoJSON structure
-                  var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
-                  $(this).append(inputRoute);
+                  var inputGeo = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
+                  $(this).append(inputGeo);
                   var that = this;
 
                   // submit via ajax
@@ -283,10 +287,37 @@ map.addLayer(visualizationLayers);
                       console.log("Error while saving Etappe to Database");
                     },
                     success: function(res) {
-                      console.log("Etappe with the name '" + that.elements.parkname.value + " saved to Database.");
+                      console.log("Object with the name '" + that.elements.parkname.value + " saved to Database.");
                     }
                   });
-                  inputRoute.remove();
+                  inputGeo.remove();
+                  map.closePopup();
+
+                  oblat = oblat.getLatLng().lat;
+                  oblon = oblon.getLatLng().lng;
+
+
+                  if(that.element.type.value == "Parklot")  {
+                    contObj = '<div class="form-group">' + '<label class="control-label col-sm-12 "><strong>Name: </strong></label>' +
+                    '<label>' + marker.getLatLng() + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Art:</strong></label>'
+                    + '<label>' + that.elements.type.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Kapazität:</strong></label>'
+                    + '<label>' + that.elements.cap.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Weitere Informationen:</strong></label>'
+                    + '<label>' + that.elements.info.value + '</label>' + '</div>'
+
+                     lots.push(new L.LatLng(oblat,oblng));
+                    }
+                    else{
+                      contObj = '<div class="form-group">' + '<label class="control-label col-sm-12 "><strong>Name: </strong></label>' +
+                    '<label>' + marker.getLatLng() + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Art:</strong></label>'
+                    + '<label>' + that.elements.type.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Kapazität:</strong></label>'
+                    + '<label>' + that.elements.cap.value + '</label>' + '</div>' + '<div class="form-group">' + '<label class="control-label col-sm-12"><strong> Weitere Informationen:</strong></label>'
+                    + '<label>' + that.elements.info.value + '</label>' + '</div>' + '<div style="text-align:center;" class="col-xs-4"><button id="nextlot" type="submit" value="nextlot" onclick="nextlot()" class="btn btn-success trigger-submit">Find nearest Parking Lot </button></div>'
+
+
+                    }
+
+                    var upPop = marker.bindPopup(contObj);
+
                   return false;
                 }
               });
@@ -319,6 +350,8 @@ $(document).ready(function() {
       success: function(res) {
 
         var route = JSON.parse(res[0].route);
+        city = res[0].name;
+        getwiki();
 
         routeControl.setWaypoints(route.waypoints).addTo(map);
         console.log("Route '" + that.elements.etappenname.value + "' successfully loaded.");
@@ -364,47 +397,36 @@ if ((document.getElementById('loadname')).value != ""){
   document.getElementById('btnid').click();
 }
 
-$.ajax({
-            // catch custom response code.
-            data: '',
-            type: 'GET',
-            contentType: "application/json",
-            // Dynamically create Request URL by appending requested name to /api prefix
-            url:  'https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='+t.values.startLocation.name,
-            error: function(xhr, status, err) {
-                //TODO
-                console.log(err);
-            },
-            success: function(res) {
-                var pages = res.query.pages;
-                var key = Object.keys(pages)[0];
-                startort_wikipedia = res.query.pages[key].extract;
-            }
-        }).then(function () {
-            document.getElementById('startort' + t.id).innerHTML = "Wikipedia <a href='https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='" + t.values.startLocation.name+ "'>(source)</a>: <br>" + startlocation_wikipedia;
-        });
-        $.ajax({
-                    // catch custom response code.
-                    data: '',
-                    type: 'GET',
-                    contentType: "application/json",
-                    headers: { 'Api-User-Agent': 'Study Project. [Contact: j_buss16@wwu.de]/' },
-                    // Dynamically create Request URL by appending requested name to /api prefix
-                    url:  'https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='+t.values.startLocation.name,
-                    error: function(xhr, status, err) {
-                        //TODO
-                        console.log(err);
-                    },
-                    success: function(res) {
-                        var pages = res.query.pages;
-                        var key = Object.keys(pages)[0];
-                        startort_wikipedia = res.query.pages[key].extract;
-                    }
-                }).then(function () {
-                    document.getElementById('zielort' + t.id).innerHTML = "Wikipedia <a href='https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&prop=extracts&redirects=1&exintro=&explaintext=&titles='" + t.values.startLocation.name+ "'>(source)</a>: <br>" + startlocation_wikipedia;
-                });
-
 });
+
+function getwiki(){
+  $.ajax({
+    type: "GET",
+    url: "http://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page= "+city+"&callback=?",
+    contentType: "application/json; charset=utf-8",
+    async: false,
+    dataType: "json",
+    success: function (data, textStatus, jqXHR) {
+
+        var markup = data.parse.text["*"];
+        var blurb = $('<div></div>').html(markup);
+
+        // remove links as they will not work
+        blurb.find('a').each(function() { $(this).replaceWith($(this).html()); });
+
+        // remove any references
+        blurb.find('sup').remove();
+
+        // remove cite error
+        blurb.find('.mw-ext-cite-error').remove();
+        $('#article').html($(blurb).find('p'));
+
+    },
+    error: function (errorMessage) {
+    }
+});
+
+}
 
 
 L.DrawToolbar.include({
@@ -587,7 +609,7 @@ function clearPopup(){
       console.dir(feat);
       var gLayer = L.geoJson(feat);
       console.dir(gLayer);
-      gLayer.addTo(visualizationLayers);
+      gLayer.addTo(vLayers);
 
   }
 
@@ -605,15 +627,13 @@ var ReadFile = function(event) {
     const output = [];
     var array;
 
-    // Empty List after new fileupload to avoid very long lists without refresh
-
-
+// Empty List after new fileupload to avoid very long lists without refresh
     reader.onload = function () {
         var fileContent = reader.result;
         //Call Geojson build function
         var gLayer = L.geoJson(JSON.parse(fileContent));
         console.dir(gLayer);
-        gLayer.addTo(visualizationLayers);
+        gLayer.addTo(vLayers);
         //logs whether the whole script runs
     };
 

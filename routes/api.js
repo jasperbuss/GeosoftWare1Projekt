@@ -4,7 +4,7 @@ var monk = require('monk');
 var db = monk('localhost:27017/Abschlussaufgabe');
 
 //save parking lot
-router.post('/save/parklot/', function(req, res, next) {
+router.post('/save/object/', function(req, res, next) {
 
     // Set collection
     var jsoncollection = db.get('jsoncollection');
@@ -29,7 +29,7 @@ router.post('/save/parklot/', function(req, res, next) {
 
 
 /* GET stored marker */
-router.get('/load/parklot/:name/', function(req, res, next) {
+router.get('/load/object/:name/', function(req, res, next) {
 
 
 

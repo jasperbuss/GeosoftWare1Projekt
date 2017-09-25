@@ -34,10 +34,10 @@ var baselayers = {
 "OSM Mapnik": osmMap
 };
 // add standard OSM tiles as basemap
-/*layercontrol.addBaseLayer(L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+layercontrol.addBaseLayer(L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map), 'OpenStreetMap (Tiles)');  // set as default
-*/
+
     var router = L.routing.osrmv1();
     var wps = [];
 //Adds routes as layers
@@ -93,28 +93,58 @@ map.addLayer(visualizationLayers);
 
 
   // add controls to map
-  drawControl = new L.Control.Draw(options);
 
-  map.addControl(drawControl);
 
-  map.on('click', function(e) {
-       if (routeSwitch){
+
            var container = L.DomUtil.create('div'),
-               startBtn = createButton('From here..', container),
-               destBtn = createButton('..to here', container);
-           console.log(e.latlng);
-           L.popup()
+               startBtn = createButton('Parkplatz', container),
+               destBtn = createButton('Zuschauerplatz', container),
+               subBtn = createButton('submit', container);
+
+               L.popup()
                .setContent(container)
                .setLatLng(e.latlng)
                .openOn(map);
+
            L.DomEvent.on(startBtn, 'click', function() {
                routeControl.spliceWaypoints(0, 1, e.latlng);
                cacheSave = e.latlng;
                map.closePopup();
 
-           });
+               L.DomEvent.on(parkBtn, 'click', function() {
+                  map.closePopup();
 
-       }
+                  var parken = L.icon({
+                    iconUrl: 'http://herrhomann.de/images/Parken.png',
+
+                    iconSize:     [45, 45], // size of the icon
+                    iconAnchor:   [15, 15], // point of the icon which will correspond to marker's location
+                    popupAnchor:  [0, 0] // point from which the popup should open relative to the iconAnchor
+                  });
+
+                  var name = "";
+                  var preis = "";
+                  var kap = "";
+                  var inside = L.DomUtil.create('div'),
+                  nameI = createInput(inside),
+                  priceI = createInput(inside),
+                  kapI = createInput(inside),
+                  close = createButton('Abschicken', inside);
+
+                  nameI.placeholder ="Name des Parkplatzes";
+                  nameI.id = "nameI";
+                  priceI.placeholder ="Preis des Parkplatzes";
+                  priceI.id = "priceI";
+                  kapI.placeholder ="Kapazität des Parkplatzes";
+                  kapI.id = "kapI";
+
+                  L.popup()
+                  .setContent(inside)
+                  .setLatLng(positionMausAnfang)
+                  .openOn(map);
+
+
+       });
 
 
    });
@@ -124,89 +154,8 @@ map.addLayer(visualizationLayers);
    *  Popup with our own content will show up and the user can fill in the information
    *  that wants to be stored
    */
-  map.on(L.Draw.Event.CREATED, function (e) {
 
-      var popupContent = '<form class="saveParkplatz" id="saveParkplatz" action="/api/save/parklot/" method="POST">'+
-          '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Name: </strong></label>'+
-          '<input type="text" placeholder="Required" id="parkname" name="parkname" class="form-control"/>'+
-          '</div>'+
-          '<div class="form-group">'+
-          '</div>'+
-          '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Kapazität: </strong></label>'+
-          '<input type="number" min="0" class="form-control" id="cap" name="cap">'+
-          '</div>'+
-          //...
-          '<div class="form-group">'+
-          '<label class="control-label col-sm-5"><strong>Description: </strong></label>'+
-          '<textarea class="form-control" rows="6" id="info" name="info">...</textarea>'+
-          '</div>'+
-          '<div class="form-group">'+
-          '<div style="text-align:center;" class="col-xs-4"><button type="submit" value="speichern" class="btn btn-primary trigger-submit">Marker speichern</button></div>'+              '</div>'+
-          '</form>';
-
-      var parkIcon = L.icon({iconUrl: 'https://d30y9cdsu7xlg0.cloudfront.net/png/80726-200.png',
-                            iconSize: [30, 21]});
-      var type = e.layerType,
-          layer = e.layer;
-                var popup = L.popup({Width:1000
-                    })
-                    .setContent(popupContent)
-                    .setLatLng(layer.getLatLng())
-      //add the marker to a layer
-      editableLayers.addLayer(layer);
-      marker = new L.marker(layer.getLatLng(), {icon: parkIcon}).addTo(map).bindPopup(popup).openPopup();
-      marker.on('popupclose', function (e) {
-                  marker.remove();
-              });
-
-              $('#saveParkplatz').submit(function(e) {
-
-                e.preventDefault();
-
-                if (true){
-                  // Append hidden field with actual GeoJSON structure
-                  var inputRoute = $("<input type='hidden' name='route' value='" + JSON.stringify(currentRoute) + "'>");
-                  $(this).append(inputRoute);
-                  var that = this;
-
-                  // submit via ajax
-                  $.ajax({
-                    data: $(that).serialize(),
-                    type: $(that).attr('method'),
-                    url:  $(that).attr('action'),
-                    error: function(xhr, status, err) {
-                      console.log("Error while saving Etappe to Database");
-                    },
-                    success: function(res) {
-                      console.log("Etappe with the name '" + that.elements.parkname.value + " saved to Database.");
-                    }
-                  });
-                  inputRoute.remove();
-                  
-                  return false;
-                }
-              });
-           });
 }
-
-
-
-L.DrawToolbar.include({
-    getModeHandlers: function(map) {
-        return [
-            {
-                enabled: true,
-                handler: new L.Draw.Marker(map),
-                title: 'Objekt erstellen'
-            }
-
-        ];
-    }
-});
-
-
 
 
 /**

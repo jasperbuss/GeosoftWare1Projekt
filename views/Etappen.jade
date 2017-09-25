@@ -27,8 +27,12 @@ html
         // Leaflet Reverse Lookup
         link(rel='stylesheet', href='/stylesheets/Control.Geocoder.css')
         script(src='/javascripts/Control.Geocoder.js')
+        // turf script
+        script(src = '/javascripts/turf.min.js')
+        script(src = '/javascripts/turf.js')
 
-        // our app code
+
+        // app code
         script(src='/javascripts/etappen.js')
       body
         .container-fluid
@@ -60,11 +64,6 @@ html
             br
             button.btn.btn-default(onclick='showLocation()') Meine Position anzeigen
             br
-            br
-            form.form-inline(id='saveEtappe' action='/api/save/etappe/' method='POST')
-              input#name.form-control(type='text', name='etappenname', placeholder='Name der Etappe')
-              input.btn-default(type='submit', value='Etappe in Datenbank speichern')
-            br
             form.form-inline(id='loadEtappe' action='/api/load/etappe/' method='GET')
               input#etname.form-control(type='text', name='etappenname', placeholder=loadEtappe)
               input#butId.btn.btn-default(type='submit', value='Etappe aus Datenbank laden')
@@ -72,11 +71,6 @@ html
             form.form-inline(id='loadParkplatz' action='/api/load/parklot/' method='GET')
               input#loadname.form-control(type='text', name='parkname', placeholder = loadParkplatz)
               input#btnid.btn.btn-default(type='submit', value='Parkplatz aus Datenbank laden')
-            br
-            form.form-inline(id='saveParkplatz' action='/api/save/parklot/' method='POST')
-              input#parkname.form-control(type='text', name='parkname', placeholder='Name des Parkplatzes')
-              input.btn.btn-default(type='submit', value='Parkplatz oder Zuschauerplätze in Datenbank speichern')
-            br
 
             br
             button.btn.btn-default(onclick='clearPopup()') Lösche alle Popups
